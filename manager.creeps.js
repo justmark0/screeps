@@ -5,7 +5,8 @@
 let print = console.log;
 
 let creepCanChangeProfessionIn = 120;
-let minProfessions = {"worker": 1, "updater": 1, "builder":3} // "miner": 2,
+let creepAmount = 5;
+let minProfessions = {"worker": 1, "updater": 3, "builder":1} // "miner": 2,
 let roomName = "W28S11"
 
 
@@ -48,7 +49,7 @@ let CreepSpawnData = class{
         let featureCost = {"MOVE": 50, "WORK": 100, "CARRY": 50, "ATTACK": 80}
         // https://docs.screeps.com/api/#Creep
         //                 50    100   200   300    350    400
-        let paramsList = ["MOVE", "CARRY", "WORK", "WORK", "CARRY"]
+        let paramsList = ["MOVE", "CARRY", "WORK", "CARRY", "MOVE", "WORK", "CARRY", "MOVE"]
         if(Game.rooms[roomName].energyAvailable < minProfessions){
             this.spawnNow = false;
             return []
@@ -85,13 +86,6 @@ let CreepSpawnData = class{
     }
 
 }
-
-// function updateEnergyHistory(){
-//     room = Game.rooms[roomName];
-//     if(false){  // if no enegryHistory
-//         Memory.energyHistory = {Game.time: room.energyAvailable}
-//     }
-// }
 
 function distributeProfessionTime(){
     // TODO optimize of delete
@@ -151,16 +145,11 @@ function creepLogs(){
 }
 
 function creepManager(){
-    let creepAmount = 5;
-    // First one if a priority
-
     // updateEnergyHistory()
     distributeProfessionTime()
     if(_(Game.creeps).size() < creepAmount){
         // Create exactly 1 creep, to avoid name collision
         new CreepSpawnData().main()
-
-        // Game.spawns['Spawn1'].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE], Game.time);
     }
 
     nowProfessions = calculateNowProfessions();
