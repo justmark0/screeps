@@ -1,5 +1,5 @@
 let print = console.log;
-let roomName = "W28S11"
+let roomName = "E33N38"
 
 
 function repair(tower){
@@ -52,7 +52,7 @@ function heal(tower){
 }
 
 function towerManager(){
-    var tower = Game.getObjectById('61a5b311be05fa126d28279f');
+    var tower = Game.getObjectById(''); // TODO add id when tower will be ready
 
     if(tower) {
         // first of all we attack,

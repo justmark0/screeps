@@ -1,49 +1,54 @@
 let print = console.log;
 
+function getTargets(creep){
+    var targets = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return (
+                structure.structureType === STRUCTURE_SPAWN ||
+                structure.structureType === STRUCTURE_EXTENSION ||
+                structure.structureType === STRUCTURE_TOWER
+                ) &&
+                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        }
+    });
+    return targets;
+}
+
 var roleWorker = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
-        if(creep.store.getFreeCapacity() > 0) {
-            var sources = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType === STRUCTURE_CONTAINER) &&
-                        structure.store[RESOURCE_ENERGY] > 0;
-                }
-            });
-            // If no container with some energy
-            if(!sources){
-                var sources = creep.room.find(FIND_SOURCES_ACTIVE);
-                if(creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
+        
+
+        if(creep.memory.work === undefined){
+            creep.memory.work = false;
+        }
+
+        if(creep.memory.work && creep.store[RESOURCE_ENERGY] === 0) {
+            creep.memory.work = false;
+            creep.say('🔄 harvest');
+        }
+        if(!creep.memory.work && creep.store.getFreeCapacity() === 0) {
+            creep.memory.work = true;
+            creep.say('⚡ work');
+        }
+
+        if(creep.memory.work) {
+            var targets = getTargets(creep);
+            for(var id in targets){
+                if(creep.transfer(targets[id], RESOURCE_ENERGY) === OK){
+                    return;
                 }
             }
-            else{
-                if(creep.withdraw(sources, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE){
-                    creep.moveTo(sources, {visualizePathStyle: {stroke: '#ffaa00'}});
-                }
-            }
+            require('role.charger').goToTarget(creep, targets);
         }
         else {
-            var targets = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (
-                        // structure.structureType === STRUCTURE_SPAWN ||
-                        structure.structureType === STRUCTURE_EXTENSION ||
-                        structure.structureType === STRUCTURE_TOWER
-                        ) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                }
-            });
-            if(targets.length === 0){
-                creep.memory.role = "builder"
-            }
-            else {
-                if (creep.transfer(targets, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets, {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-            }
+            require('role.charger').run(creep);
         }
+    },
+    
+    targetAmount: function(creep){
+        return getTargets(creep).length;
     }
 };
 
