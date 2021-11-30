@@ -5,8 +5,8 @@
 let print = console.log;
 
 let creepCanChangeProfessionIn = 120;
-let creepAmount = 5;
-let minProfessions = {"worker": 1, "updater": 3, "builder":1} // "miner": 2,
+let creepAmount = 4;
+let minProfessions = {"worker": 1, "updater": 1, "builder":1} // "miner": 2,
 let roomName = "W28S11"
 
 
@@ -154,6 +154,13 @@ function creepManager(){
 
     nowProfessions = calculateNowProfessions();
     createMinProfessions(nowProfessions);
+
+    for(let name in Game.creeps) {
+        let creep = Game.creeps[name];
+        if(creep.memory.role === undefined){
+            creep.memory.role = "builder"
+        }
+    }
 
     // If creeps have same professions, make sure  to create at least one in profession
     creepLogs();
