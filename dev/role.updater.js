@@ -1,3 +1,8 @@
+let print = console.log;
+
+
+
+
 var roleUpdater = {
 
     /** @param {Creep} creep **/
