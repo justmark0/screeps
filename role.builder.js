@@ -19,7 +19,7 @@ var roleBuilder = {
         if(creep.memory.building) {
             let targets = getTargets(creep);
             for(var id in targets){
-                if(creep.build(targets[id]) == OK){
+                if(creep.build(targets[id]) === OK){
                     return;
                 }
             }

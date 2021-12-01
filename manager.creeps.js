@@ -5,8 +5,10 @@
 let print = console.log;
 
 let creepCanChangeProfessionIn = 120;
-let creepAmount = 5;
-let minProfessions = {"worker": 1, "updater": 3, "builder":1} // "miner": 2,
+let creepAmount = 8;
+let minProfessions = {"worker": 2, "updater": 2, "builder":3, "helper": 1} // "miner": 2,
+let maxProfessions = {"helper": 2}
+roomName = "E33N38"
 
 
 function runCreepsAndDeleteDead(){
@@ -48,7 +50,7 @@ let CreepSpawnData = class{
         let featureCost = {'move': 50, 'work': 100, 'carry': 50, 'attack': 80}
         // https://docs.screeps.com/api/#Creep
         //                50    100    200   250    300   400   450    500
-        let paramsList = [MOVE, CARRY, WORK, CARRY, MOVE, WORK, CARRY, MOVE];
+        let paramsList = [MOVE, CARRY, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, WORK, WORK, WORK];
         if(spawn.room.energyAvailable < 200){
             this.spawnNow = false;
             return [];
@@ -89,10 +91,10 @@ function distributeProfessionTime(){
         let creep = Game.creeps[name];
         for(let name2 in Game.creeps) {
             let creep2 = Game.creeps[name2];
-            if(creep.name == creep2.name){
+            if(creep.name === creep2.name){
                 continue;
             }
-            if(creep.memory.role_since == creep2.memory.role_since){
+            if(creep.memory.role_since === creep2.memory.role_since){
                 creep.memory.role_since = getRandomInt(creepCanChangeProfessionIn)
                 break;
             }
@@ -117,7 +119,7 @@ function createMinProfessions(nowProfessions){
         for(let name in Game.creeps) {
             let creep = Game.creeps[name];
             // Create needed min unit
-            if (Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null) {
+            if ((Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null) && creep.memory.role !== "helper") {
                 let needCreate = minProfessions[profession] - nowProfessions[profession];
                 if (needCreate > 0) {
                     creep.memory.role = profession;
@@ -127,6 +129,26 @@ function createMinProfessions(nowProfessions){
                 else{
                     break;
                 }
+            }
+        }
+    }
+}
+
+
+function checkMaxProfessions(){
+    let helpers = 0
+    for(let name in Game.creeps) {
+        let creep = Game.creeps[name];
+        if(creep.memory.role === "helper"){
+            helpers ++
+        }
+    }
+    if(helpers > maxProfessions['helper']){
+        for(let name in Game.creeps) {
+            let creep = Game.creeps[name];
+            if (creep.pos.roomName === roomName && helpers > maxProfessions['helper']) {
+                creep.memory.role = undefined;
+                helpers --
             }
         }
     }
@@ -150,11 +172,12 @@ function creepManager(){
 
     let nowProfessions = calculateNowProfessions();
     createMinProfessions(nowProfessions);
+    checkMaxProfessions()
 
     for(let name in Game.creeps) {
         let creep = Game.creeps[name];
         if(creep.memory.role === undefined){
-            creep.memory.role = "builder"
+            creep.memory.role = "updater"
         }
     }
 
@@ -174,6 +197,8 @@ function runCreepProgram(creepProfession, creep){
             return require('role.updater').run(creep);
         case "worker":
             return require('role.worker').run(creep);
+        case "helper":
+            return require('role.helper').run(creep);
     }
 }
 

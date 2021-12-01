@@ -3,7 +3,7 @@ let roomName = "E33N38"
 
 
 function repair(tower){
-    if(tower.store[RESOURCE_ENERGY] < 500){
+    if(tower.store[RESOURCE_ENERGY] < 700){
         // if tower has not enough to defence, we do not repair
         return false
     }
@@ -23,27 +23,27 @@ function repair(tower){
         }
     }
     toRepair = damagedStructures[id]
-    if(toRepair.hitsMax - toRepair.hits < 1000000){
+    // if(toRepair.hitsMax - toRepair.hits < 1000000){
         // If we need to repair 1m we do not repair Hehehe
         // it is needed in case of damaged walls
         print("pos ", toRepair.pos, " hits", toRepair.hits, " to repair", toRepair.hitsMax - toRepair.hits)
         tower.repair(damagedStructures[id]);
-    }
+    // }
     return true;
 }
 
 
 function attack(tower){
-    var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-    if(closestHostile) {
-        tower.attack(closestHostile);
+    let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS, {filter: (creep) => creep.owner.username !== "StiveMan"});
+    if(toAttack[0]) {
+        tower.attack(toAttack[0]);
         return true;
     }
     return false;
 }
 
 function heal(tower){
-    if(tower.store[RESOURCE_ENERGY] < 300){
+    if(tower.store[RESOURCE_ENERGY] < 600){
         // if tower has not enough to defence, we do not heal
         return false
     }
@@ -52,13 +52,15 @@ function heal(tower){
 }
 
 function towerManager(){
-    var tower = Game.getObjectById(''); // TODO add id when tower will be ready
-
-    if(tower) {
-        // first of all we attack,
-        if(!attack(tower)){
-            if(!heal(tower)){
-                repair(tower)
+    var towers = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+    for(let tower_id in towers){
+        let tower = towers[tower_id]
+        if(tower) {
+            // first of all we attack,
+            if(!attack(tower)){
+                if(!heal(tower)){
+                    repair(tower)
+                }
             }
         }
     }

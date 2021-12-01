@@ -2,12 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9d7b379-5655-4608-b743-ebecbff86ad6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/role.charger.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/role.helper.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/role.miner.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/role.raider.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dev/manager.creeps.js" beforeDir="false" afterPath="$PROJECT_DIR$/dev/manager.creeps.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manager.creeps.js" beforeDir="false" afterPath="$PROJECT_DIR$/manager.creeps.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/manager.tower.js" beforeDir="false" afterPath="$PROJECT_DIR$/manager.tower.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/role.builder.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.builder.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/role.updater.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.updater.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/role.worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.worker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/role.charger.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.charger.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +27,14 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="ProjectId" id="21WYX0XNueAAm46v0QoGD1VrHpm" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -35,6 +46,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -59,7 +71,8 @@
       <workItem from="1638267726753" duration="5470000" />
       <workItem from="1638302059409" duration="1583000" />
       <workItem from="1638304472939" duration="403000" />
-      <workItem from="1638314758868" duration="1444000" />
+      <workItem from="1638314758868" duration="5908000" />
+      <workItem from="1638389904312" duration="7978000" />
     </task>
     <servers />
   </component>

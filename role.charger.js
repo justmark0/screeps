@@ -1,4 +1,5 @@
 let print = console.log;
+roomName = "E33N38"
 
 function goToTarget(creep, goals){
     goals = _.map(goals, function(source) {
@@ -45,21 +46,33 @@ function goToTarget(creep, goals){
 var roleCharger = {
     /** @param {Creep} creep **/
     run: function(creep) {
-        let sources = creep.room.find(FIND_SOURCES_ACTIVE);
-        for(var id in sources){
-            if(creep.harvest(sources[id]) === OK){
+        let tombstones = creep.room.find(FIND_TOMBSTONES);
+        for(let id in tombstones){
+            if(creep.withdraw(tombstones[id], RESOURCE_ENERGY) === OK){
                 return;
             }
         }
-        let sources2 = creep.room.find(FIND_RUINS, {
+        let ruins = creep.room.find(FIND_RUINS, {
             filter: (s) => s.store[RESOURCE_ENERGY] > 0
         });
-        for(var id in sources2){
-            if(creep.withdraw(sources2[id], RESOURCE_ENERGY) === OK){
-                return;
-            }
-        }
-        goToTarget(creep, sources.concat(sources2));
+        let droppedResources = creep.room.find(FIND_DROPPED_RESOURCES);
+        let containers = creep.room.find(FIND_STRUCTURES,{
+            filter: (s) => s.structureType === STRUCTURE_CONTAINER
+                && s.store[RESOURCE_ENERGY] > 0
+        });
+        let sources = creep.room.find(FIND_SOURCES_ACTIVE);
+
+        toWithdraw = containers.concat(ruins)
+        toPickup = droppedResources
+        toHarvest = sources
+
+        for(let id in toWithdraw){
+            if(creep.withdraw(toWithdraw[id], RESOURCE_ENERGY) === OK){return;}}
+        for(let id in sources){
+            if(creep.harvest(sources[id]) === OK){return;}}
+        for(let id in toPickup){
+            if(creep.pickup(toPickup[id], RESOURCE_ENERGY) === OK){return;}}
+        goToTarget(creep, tombstones.concat(ruins).concat(droppedResources).concat(containers).concat(sources));
     },
     goToTarget: goToTarget,
 };
