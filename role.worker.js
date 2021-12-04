@@ -18,8 +18,6 @@ var roleWorker = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
-        
-
         if(creep.memory.work === undefined){
             creep.memory.work = false;
         }

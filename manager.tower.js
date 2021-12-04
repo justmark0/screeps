@@ -1,5 +1,5 @@
 let print = console.log;
-let roomName = "E33N38"
+let roomName = require('constants').roomName
 
 
 function repair(tower){
@@ -7,28 +7,29 @@ function repair(tower){
         // if tower has not enough to defence, we do not repair
         return false
     }
-    var damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
+    let damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
         filter: (structure) => structure.hits < structure.hitsMax
     });
     if(damagedStructures.length === 0){
         return false;
     }
-    minHits = damagedStructures[0].hits
-    id = 0
+    let minHits = damagedStructures[0].hits
+    let id = 0
     for(let i in damagedStructures){
-        structure = damagedStructures[i]
+        let structure = damagedStructures[i]
         if(structure.hits < minHits && (structure.hitsMax - structure.hits) > 200){
             minHits = structure.hits
             id = i
         }
     }
-    toRepair = damagedStructures[id]
+    let toRepair = damagedStructures[id]
     // if(toRepair.hitsMax - toRepair.hits < 1000000){
+    if(toRepair.hits < 2000000){
         // If we need to repair 1m we do not repair Hehehe
         // it is needed in case of damaged walls
         print("pos ", toRepair.pos, " hits", toRepair.hits, " to repair", toRepair.hitsMax - toRepair.hits)
         tower.repair(damagedStructures[id]);
-    // }
+    }
     return true;
 }
 

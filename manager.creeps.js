@@ -3,12 +3,12 @@
 // Builder is responsible to create all buildings that need to build
 // Miner will mine and pass to container
 let print = console.log;
+let roomName = require('constants').roomName
+let creepCanChangeProfessionIn = require('constants').creepCanChangeProfessionIn
+let creepAmount = require('constants').creepAmount
+let minProfessions = require('constants').minProfessions
+let maxProfessions = require('constants').maxProfessions
 
-let creepCanChangeProfessionIn = 120;
-let creepAmount = 8;
-let minProfessions = {"worker": 2, "updater": 2, "builder":3, "helper": 1} // "miner": 2,
-let maxProfessions = {"helper": 2}
-roomName = "E33N38"
 
 
 function runCreepsAndDeleteDead(){
@@ -38,6 +38,8 @@ function getKeysWithZeros(dictToCopy){
 let spawnName = "Spawn1";
 let minCreepCost = 200;
 let okToCreateCreepFromEnergy = 350;
+let featureCost = {'move': 50, 'work': 100, 'carry': 50, 'attack': 80}
+
 
 let CreepSpawnData = class{
     constructor(spawnerName='', spawnParams='', spawnNow= false) {
@@ -46,8 +48,15 @@ let CreepSpawnData = class{
         this.spawnNow = spawnNow;
     }
 
+    getParamCost(params){
+        let creepTotalCost = 0;
+        for(let param in params){
+            creepTotalCost += featureCost[params[param]];
+        }
+        return creepTotalCost
+    }
+
     getMaxParams (spawn){
-        let featureCost = {'move': 50, 'work': 100, 'carry': 50, 'attack': 80}
         // https://docs.screeps.com/api/#Creep
         //                50    100    200   250    300   400   450    500
         let paramsList = [MOVE, CARRY, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, WORK, WORK, WORK];
@@ -68,21 +77,29 @@ let CreepSpawnData = class{
         return params;
     }
 
-    main (spawn){
-        let params = []
-        if (spawn.room.energyAvailable < okToCreateCreepFromEnergy){
-            if(spawn.room.energyAvailable >= minCreepCost){ // noEnergyInLast20Moves &&
+    main (spawn, params, role){
+        print('is params und', params === undefined)
+        if(params === undefined){
+            params = []
+            if (spawn.room.energyAvailable < okToCreateCreepFromEnergy){
+                if(spawn.room.energyAvailable >= minCreepCost){ // noEnergyInLast20Moves &&
+                    params = this.getMaxParams(spawn)
+                }
+            }
+            else{
                 params = this.getMaxParams(spawn)
             }
         }
-        else{
-            params = this.getMaxParams(spawn)
+        if(this.getParamCost(params) > 200){
+            this.spawnNow = true
         }
-        if(this.spawnNow) {
+        if(this.spawnNow && this.getParamCost(params) <= spawn.room.energyAvailable) {
             spawn.spawnCreep(params, Game.time);
+            if(role !== undefined){
+                Game.creeps[Game.time].memory.role = role
+            }
         }
     }
-
 }
 
 function distributeProfessionTime(){
@@ -119,7 +136,8 @@ function createMinProfessions(nowProfessions){
         for(let name in Game.creeps) {
             let creep = Game.creeps[name];
             // Create needed min unit
-            if ((Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null) && creep.memory.role !== "helper") {
+            if ((Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null)
+                && creep.memory.role !== "helper" && creep.memory.role !== "raider") {
                 let needCreate = minProfessions[profession] - nowProfessions[profession];
                 if (needCreate > 0) {
                     creep.memory.role = profession;
@@ -137,10 +155,14 @@ function createMinProfessions(nowProfessions){
 
 function checkMaxProfessions(){
     let helpers = 0
+    let raiders = 0
     for(let name in Game.creeps) {
         let creep = Game.creeps[name];
         if(creep.memory.role === "helper"){
             helpers ++
+        }
+        if(creep.memory.role === "raider"){
+            raiders ++
         }
     }
     if(helpers > maxProfessions['helper']){
@@ -149,6 +171,15 @@ function checkMaxProfessions(){
             if (creep.pos.roomName === roomName && helpers > maxProfessions['helper']) {
                 creep.memory.role = undefined;
                 helpers --
+            }
+        }
+    }
+    if(raiders > maxProfessions['raider']) {
+        for (let name in Game.creeps) {
+            let creep = Game.creeps[name];
+            if (creep.pos.roomName === roomName && raiders > maxProfessions['raider']) {
+                creep.memory.role = undefined;
+                raiders--
             }
         }
     }
@@ -165,9 +196,17 @@ function creepLogs(){
 function creepManager(){
     // updateEnergyHistory()
     distributeProfessionTime()
+    let beforeCreationProfessions = calculateNowProfessions();
     if(_(Game.creeps).size() < creepAmount){
         // Create exactly 1 creep, to avoid name collision
-        new CreepSpawnData().main(Game.spawns[spawnName]);
+        if(beforeCreationProfessions['raider'] - minProfessions['raider'] < 0 &&
+            (creepAmount - minProfessions['raider'] - minProfessions['helper']) > _(Game.creeps).size()){
+            new CreepSpawnData().main(Game.spawns[spawnName], [MOVE, CARRY, WORK, MOVE, MOVE, CARRY, WORK, CARRY, CARRY], 'raider');
+            beforeCreationProfessions['raider'] ++;
+        }
+        else{
+            new CreepSpawnData().main(Game.spawns[spawnName]);
+        }
     }
 
     let nowProfessions = calculateNowProfessions();
@@ -199,6 +238,8 @@ function runCreepProgram(creepProfession, creep){
             return require('role.worker').run(creep);
         case "helper":
             return require('role.helper').run(creep);
+        case "raider":
+            return require('role.raider').run(creep);
     }
 }
 

@@ -2,15 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9d7b379-5655-4608-b743-ebecbff86ad6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/role.helper.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/role.miner.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/role.raider.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/constants.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dev/manager.creeps.js" beforeDir="false" afterPath="$PROJECT_DIR$/dev/manager.creeps.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manager.creeps.js" beforeDir="false" afterPath="$PROJECT_DIR$/manager.creeps.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manager.tower.js" beforeDir="false" afterPath="$PROJECT_DIR$/manager.tower.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/role.builder.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.builder.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/role.charger.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.charger.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/role.raider.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.raider.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/role.worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.worker.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +70,9 @@
       <workItem from="1638302059409" duration="1583000" />
       <workItem from="1638304472939" duration="403000" />
       <workItem from="1638314758868" duration="5908000" />
-      <workItem from="1638389904312" duration="7978000" />
+      <workItem from="1638389904312" duration="10633000" />
+      <workItem from="1638579351272" duration="223000" />
+      <workItem from="1638579897953" duration="4462000" />
     </task>
     <servers />
   </component>

@@ -1,5 +1,17 @@
 let print = console.log;
+let roomName = require('constants').roomName
 
+function getTargets(creep){
+    var targets = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return (
+                    structure.structureType === STRUCTURE_CONTAINER
+                ) &&
+                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        }
+    });
+    return targets;
+}
 
 var roleRaider = {
 
@@ -9,7 +21,7 @@ var roleRaider = {
         if(creep.memory.work === undefined){
             creep.memory.work = false;
         }
-
+        // work is to go home
         if(creep.memory.work && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.work = false;
             creep.say('⛏️');
@@ -20,15 +32,20 @@ var roleRaider = {
         }
 
         if(creep.memory.work) {
-            let flag = Game.flags['RaidPoint1']
-            if(flag.pos.x === creep.pos.x && flag.pos.y === creep.pos.y && flag.pos.roomName === creep.pos.roomName){
-                // TODO
-                return;
+            if(creep.room.name !== roomName){
+                let flag = Game.flags['Home']
+                creep.moveTo(flag.pos);
+            }else {
+                var targets = getTargets(creep);
+                for(var id in targets){
+                    if(creep.transfer(targets[id], RESOURCE_ENERGY) === OK){
+                        return;
+                    }
+                }
+                require('role.charger').goToTarget(creep, targets);
             }
-            creep.moveTo(flag.pos);
         }
         else {
-            roomName = "E33N38"
             if(creep.room.name !== roomName){
                 require('role.charger').run(creep);
             }else {
@@ -41,4 +58,4 @@ var roleRaider = {
     targetAmount: () => 1,
 };
 
-module.exports = roleHelper;
+module.exports = roleRaider;

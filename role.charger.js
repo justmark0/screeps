@@ -1,5 +1,5 @@
 let print = console.log;
-roomName = "E33N38"
+let roomName = require('constants').roomName
 
 function goToTarget(creep, goals){
     goals = _.map(goals, function(source) {
@@ -46,9 +46,10 @@ function goToTarget(creep, goals){
 var roleCharger = {
     /** @param {Creep} creep **/
     run: function(creep) {
-        let tombstones = creep.room.find(FIND_TOMBSTONES);
+        let tombstones = creep.room.find(FIND_TOMBSTONES, {
+            filter: (s) => s.store[RESOURCES_ALL] > 0});
         for(let id in tombstones){
-            if(creep.withdraw(tombstones[id], RESOURCE_ENERGY) === OK){
+            if(creep.withdraw(tombstones[id], RESOURCES_ALL) === OK){
                 return;
             }
         }
@@ -62,19 +63,27 @@ var roleCharger = {
         });
         let sources = creep.room.find(FIND_SOURCES_ACTIVE);
 
-        toWithdraw = containers.concat(ruins)
+        toWithdraw = containers.concat(ruins).concat(tombstones)
         toPickup = droppedResources
         toHarvest = sources
 
         for(let id in toWithdraw){
-            if(creep.withdraw(toWithdraw[id], RESOURCE_ENERGY) === OK){return;}}
+            if(creep.withdraw(toWithdraw[id], _.findKey(toWithdraw[id].store)) === OK){return;}}
         for(let id in sources){
             if(creep.harvest(sources[id]) === OK){return;}}
         for(let id in toPickup){
-            if(creep.pickup(toPickup[id], RESOURCE_ENERGY) === OK){return;}}
+            if(creep.pickup(toPickup[id], RESOURCES_ALL) === OK){return;}}
         goToTarget(creep, tombstones.concat(ruins).concat(droppedResources).concat(containers).concat(sources));
     },
+    miner: function(creep) {
+        let sources = creep.room.find(FIND_SOURCES_ACTIVE);
+        toHarvest = sources
+        for(let id in toHarvest){
+            if(creep.harvest(toHarvest[id]) === OK){return;}}
+        goToTarget(creep, sources);
+    },
     goToTarget: goToTarget,
+
 };
 
 module.exports = roleCharger;
