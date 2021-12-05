@@ -27,7 +27,7 @@ var roleMiner = {
         }
         if(!creep.memory.work && creep.store.getFreeCapacity() === 0) {
             creep.memory.work = true;
-            creep.say('store');
+            creep.say('🔋 give');
         }
 
         if(creep.memory.work) {
@@ -51,4 +51,4 @@ var roleMiner = {
     }
 };
 
-module.exports = roleWorker;
+module.exports = roleMiner;

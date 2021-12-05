@@ -8,7 +8,7 @@ let creepCanChangeProfessionIn = require('constants').creepCanChangeProfessionIn
 let creepAmount = require('constants').creepAmount
 let minProfessions = require('constants').minProfessions
 let maxProfessions = require('constants').maxProfessions
-
+let homeEnergySources = require('constants').homeEnergySources
 
 
 function runCreepsAndDeleteDead(){
@@ -40,7 +40,6 @@ let minCreepCost = 200;
 let okToCreateCreepFromEnergy = 350;
 let featureCost = {'move': 50, 'work': 100, 'carry': 50, 'attack': 80}
 
-
 let CreepSpawnData = class{
     constructor(spawnerName='', spawnParams='', spawnNow= false) {
         this.spawnerName = spawnerName;
@@ -59,7 +58,7 @@ let CreepSpawnData = class{
     getMaxParams (spawn){
         // https://docs.screeps.com/api/#Creep
         //                50    100    200   250    300   400   450    500
-        let paramsList = [MOVE, CARRY, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, WORK, WORK, WORK];
+        let paramsList = [MOVE, CARRY, WORK, CARRY, MOVE, WORK, CARRY, MOVE, WORK, WORK, WORK];
         if(spawn.room.energyAvailable < 200){
             this.spawnNow = false;
             return [];
@@ -90,7 +89,7 @@ let CreepSpawnData = class{
                 params = this.getMaxParams(spawn)
             }
         }
-        if(this.getParamCost(params) > 200){
+        if(this.getParamCost(params) > minCreepCost){
             this.spawnNow = true
         }
         if(this.spawnNow && this.getParamCost(params) <= spawn.room.energyAvailable) {
@@ -137,7 +136,7 @@ function createMinProfessions(nowProfessions){
             let creep = Game.creeps[name];
             // Create needed min unit
             if ((Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null)
-                && creep.memory.role !== "helper" && creep.memory.role !== "raider") {
+                && creep.memory.role !== "helper" && creep.memory.role !== "raider" && creep.memory.role !== "miner") {
                 let needCreate = minProfessions[profession] - nowProfessions[profession];
                 if (needCreate > 0) {
                     creep.memory.role = profession;
@@ -193,18 +192,25 @@ function creepLogs(){
     }
 }
 
+function canCreateExternalRoomCreeps(professionsNow){
+    return (creepAmount - minProfessions['raider'] - minProfessions['helper']) < _(Game.creeps).size()
+}
+
 function creepManager(){
     // updateEnergyHistory()
     distributeProfessionTime()
     let beforeCreationProfessions = calculateNowProfessions();
     if(_(Game.creeps).size() < creepAmount){
         // Create exactly 1 creep, to avoid name collision
-        if(beforeCreationProfessions['raider'] - minProfessions['raider'] < 0 &&
-            (creepAmount - minProfessions['raider'] - minProfessions['helper']) > _(Game.creeps).size()){
-            new CreepSpawnData().main(Game.spawns[spawnName], [MOVE, CARRY, WORK, MOVE, MOVE, CARRY, WORK, CARRY, CARRY], 'raider');
+        if(minProfessions['raider'] - beforeCreationProfessions['raider'] > 0 && canCreateExternalRoomCreeps(beforeCreationProfessions)){
+            new CreepSpawnData().main(Game.spawns[spawnName], [MOVE, CARRY, WORK, MOVE, MOVE, CARRY, WORK, CARRY, MOVE, CARRY], 'raider');
             beforeCreationProfessions['raider'] ++;
         }
         else{
+            // if(isMinerNeeded()){
+            //     let sourceId = getFreeSouce()
+            //     new CreepSpawnData().main(Game.spawns[spawnName], [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK], 'miner');
+            // }
             new CreepSpawnData().main(Game.spawns[spawnName]);
         }
     }
@@ -222,6 +228,7 @@ function creepManager(){
 
     // If creeps have same professions, make sure  to create at least one in profession
     creepLogs();
+    print("creep amount", creepAmount)
     runCreepsAndDeleteDead();
 }
 
@@ -232,6 +239,8 @@ function runCreepProgram(creepProfession, creep){
             return require('role.builder').run(creep);
         case "miner":
             return require('role.miner').run(creep);
+        case "towerWorker":
+            return require('role.towerWorker').run(creep);
         case "updater":
             return require('role.updater').run(creep);
         case "worker":

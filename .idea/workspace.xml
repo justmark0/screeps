@@ -2,12 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9d7b379-5655-4608-b743-ebecbff86ad6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/constants.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/role.towerWorker.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants.js" beforeDir="false" afterPath="$PROJECT_DIR$/constants.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manager.creeps.js" beforeDir="false" afterPath="$PROJECT_DIR$/manager.creeps.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manager.tower.js" beforeDir="false" afterPath="$PROJECT_DIR$/manager.tower.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/role.charger.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.charger.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/role.raider.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.raider.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/role.miner.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.miner.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/role.worker.js" beforeDir="false" afterPath="$PROJECT_DIR$/role.worker.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,6 +42,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="ToolWindowStructure.ShowToolbar" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -72,7 +73,9 @@
       <workItem from="1638314758868" duration="5908000" />
       <workItem from="1638389904312" duration="10633000" />
       <workItem from="1638579351272" duration="223000" />
-      <workItem from="1638579897953" duration="4462000" />
+      <workItem from="1638579897953" duration="4728000" />
+      <workItem from="1638612107088" duration="2194000" />
+      <workItem from="1638736975030" duration="3004000" />
     </task>
     <servers />
   </component>

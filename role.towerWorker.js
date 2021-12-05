@@ -4,8 +4,7 @@ function getTargets(creep){
     var targets = creep.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
             return (
-                structure.structureType === STRUCTURE_SPAWN ||
-                structure.structureType === STRUCTURE_EXTENSION
+                    structure.structureType === STRUCTURE_TOWER
                 ) &&
                 structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
         }
@@ -13,7 +12,7 @@ function getTargets(creep){
     return targets;
 }
 
-var roleWorker = {
+var roleTowerWorker = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
@@ -23,11 +22,11 @@ var roleWorker = {
 
         if(creep.memory.work && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.work = false;
-            creep.say('🔄 harvest');
+            creep.say('⚡️ get');
         }
         if(!creep.memory.work && creep.store.getFreeCapacity() === 0) {
             creep.memory.work = true;
-            creep.say('⚡ work');
+            creep.say('🔋 give');
         }
 
         if(creep.memory.work) {
@@ -43,10 +42,10 @@ var roleWorker = {
             require('role.charger').run(creep);
         }
     },
-    
+
     targetAmount: function(creep){
         return getTargets(creep).length;
     }
 };
 
-module.exports = roleWorker;
+module.exports = roleTowerWorker;
