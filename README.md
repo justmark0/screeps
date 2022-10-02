@@ -7,9 +7,7 @@ I cannot create folders, so don't be afraid of file names and project structure 
 You can watch right now what's going on in screeps world. Take a look! [https://screeps.com/a/#!/map/shard3?pos=6.409,-16.368](https://screeps.com/a/#!/map/shard3?pos=6.409,-16.368)
 Here is a shout demo gif of how my bots are building my base:
 
-
-https://user-images.githubusercontent.com/54911879/193471689-e9b21056-a67f-4a8b-bd92-92e9f8c1c12e.mp4
-
+![example1](https://user-images.githubusercontent.com/54911879/193472107-20b375ee-8dae-46d5-a4ca-e46a2701794e.gif)
 
 And here towers are updating some constructions, and bots are updating controller, harvasting energy, and moving somewhere 😁.
 
