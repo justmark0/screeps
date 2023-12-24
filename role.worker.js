@@ -10,6 +10,15 @@ function getTargets(creep){
                 structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
         }
     });
+    if (targets.length == 0){
+        return creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return (
+                structure.structureType === STRUCTURE_TOWER
+                ) &&
+                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        }});
+    }
     return targets;
 }
 

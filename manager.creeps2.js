@@ -1,15 +1,34 @@
-// Worker is responsible to collect energy and transfer to spawn, collect garbage
-// Updater is responsible to update controller, support rampart and towers
-// Builder is responsible to create all buildings that need to build
-// Miner will mine and pass to container
+// Configure max and min amount of sceeps to spawn by role in config. For all rooms same config
+// Or configure forceConfig and enable it by applyForceConfig
+// But the rest creeps should manage itself.
 let print = console.log;
-let roomName = require('constants').roomName
-let creepCanChangeProfessionIn = require('constants').creepCanChangeProfessionIn
-let creepAmount = require('constants').creepAmount
-let minProfessions = require('constants').minProfessions
-let maxProfessions = require('constants').maxProfessions
+const {
+    roomName,
+    minRolesConfig,
+    maxRolesConfig,
+    manualRoles,
+    enableManualRoles,
+} = require('./config.js');
+// import * as config from 'constants.js'
+// let roomNames = require('constants').roomNames
+// let creepCanChangeProfessionIn = require('constants').creepCanChangeProfessionIn
+// let creepAmount = require('constants').creepAmount
+// let minProfessions = require('constants').minProfessions
+// let maxProfessions = require('constants').maxProfessions
 
+// One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
+function creepManager() {
+    testFunc()
+    deleteDeadCreeps()
+    for (let roomName in roomNames) {
+        let roles = calculateNeededRoles(roomName)
+        distributeEnergySupplyRoles(roomName, roles)
+        let nextRole = roleToCreateNext(roomName)
+        createCreepIfEnoughEnergy(roomName)
+    }
+}
 
+// function to test some theories or check code.
 function testFunc() {
     // print(JSON.stringify(Game.creeps));
     for(let creepName in Game.creeps) {
@@ -19,16 +38,26 @@ function testFunc() {
     }
 }
 
-function runCreepsAndDeleteDead(){
+function deleteDeadCreeps(){
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]){
             delete Memory.creeps[name];
-            continue;
         }
-        let creep = Game.creeps[name];
-        runCreepProgram(creep.memory.role, creep);
     }
 }
+
+// This function returns calculated roles needed in a room or returned manualRoles
+function calculateNeededRoles() {
+    if (enableManualRoles){
+        return manualRoles
+    }
+    print("calculateNeededRoles NOT IMPLEMENTED YET")
+}
+
+function distributeEnergySupplyRoles(){
+
+}
+
 
 
 function getRandomInt(max) {
@@ -122,12 +151,12 @@ function distributeProfessionTime(){
          // We distribute only general supply roles.
          // Body (abilities they have) spesific roles should stick for all lifetime.
          // In other words, miners should mine because they have a lot of [work].
-        // if (!(creep.memory.role === 'worker' || 
-        //       creep.memory.role === 'updater'|| 
-        //       creep.memory.role === 'builder')){
+        if (!(creep.memory.role === 'worker' || 
+              creep.memory.role === 'updater'|| 
+              creep.memory.role === 'builder')){
 
 
-        // }
+        }
         for(let name2 in Game.creeps) {
             let creep2 = Game.creeps[name2];
             if(creep.name === creep2.name){

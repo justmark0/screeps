@@ -47,9 +47,9 @@ var roleCharger = {
     /** @param {Creep} creep **/
     run: function(creep) {
         let tombstones = creep.room.find(FIND_TOMBSTONES, {
-            filter: (s) => s.store[RESOURCES_ALL] > 0});
+            filter: (s) => s.store[RESOURCE_ENERGY] > 0});
         for(let id in tombstones){
-            if(creep.withdraw(tombstones[id], RESOURCES_ALL) === OK){
+            if(creep.withdraw(tombstones[id], RESOURCE_ENERGY) === OK){
                 return;
             }
         }

@@ -40,7 +40,7 @@ function repair(tower, tower_id){
     }
     let toRepair = damagedStructures[id]
     // if(toRepair.hitsMax - toRepair.hits < 1000000){
-    if(toRepair.hits < 1700000){
+    if(toRepair.hits < 10000000000){
         // If we need to repair 1m we do not repair Hehehe
         // it is needed in case of damaged walls
         print("pos ", toRepair.pos, " hits", toRepair.hits, " to repair", toRepair.hitsMax - toRepair.hits)

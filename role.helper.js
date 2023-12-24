@@ -19,20 +19,20 @@ var roleHelper = {
             creep.say('⚡ work');
         }
 
-        if(creep.memory.work) {
+        // if(creep.memory.work) {
             // var targets = getTargets(creep);
             // for(var id in targets){
             //     if(creep.transfer(targets[id], RESOURCE_ENERGY) === OK){
             //         return;
             //     }
             // }
-            let flag = Game.flags['HelpPoint1']
-            if(flag.pos.x === creep.pos.x && flag.pos.y === creep.pos.y && flag.pos.roomName === creep.pos.roomName){
-                creep.drop(RESOURCE_ENERGY);
-                return;
-            }
-            creep.moveTo(flag.pos);
-        }
+            // let flag = Game.flags['HelpPoint1']
+            // if(flag.pos.x === creep.pos.x && flag.pos.y === creep.pos.y && flag.pos.roomName === creep.pos.roomName){
+                // creep.drop(RESOURCE_ENERGY);
+                // return;
+            // }
+            // creep.moveTo(flag.pos);
+        // }
         else {
             roomName = "E33N38"
             if(creep.room.name !== roomName){

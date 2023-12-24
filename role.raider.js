@@ -49,8 +49,8 @@ var roleRaider = {
             if(creep.room.name !== roomName){
                 require('role.charger').run(creep);
             }else {
-                let flag = Game.flags['RaidPoint1']
-                creep.moveTo(flag.pos);
+                // let flag = Game.flags['RaidPoint1']
+                // creep.moveTo(flag.pos);
             }
         }
     },
