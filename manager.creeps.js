@@ -1,15 +1,30 @@
-// Worker is responsible to collect energy and transfer to spawn, collect garbage
-// Updater is responsible to update controller, support rampart and towers
-// Builder is responsible to create all buildings that need to build
-// Miner will mine and pass to container
+// Configure max and min amount of sceeps to spawn by role in config. For all rooms same config
+// Or configure manualRoles and enable it by enableManualRoles.
+// But the rest creeps should manage itself.
 let print = console.log;
-let roomName = require('constants').roomName
-let creepCanChangeProfessionIn = require('constants').creepCanChangeProfessionIn
-let creepAmount = require('constants').creepAmount
-let minProfessions = require('constants').minProfessions
-let maxProfessions = require('constants').maxProfessions
+const {
+    roomNames,
+    minRolesConfig,
+    maxRolesConfig,
+    manualRoles,
+    enableManualRoles,
+} = require('./config.js');
+let cooldown = 100
 
+// One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
+function creepManager() {
+    testFunc()
+    deleteDeadCreeps()
+    for (let roomName in roomNames) {
+        let roomCreeps = _(Game.creeps).filter((creep) => creep.room.name === roomName)
+        let roles = calculateNeededRoles(roomName)
+        let rolesToCreate = distributeEnergySupplyRoles(roomCreeps, roles)
+        let nextRole = roleToCreateNext(rolesToCreate)
+        createCreepIfEnoughEnergy(roomName, nextRole)
+    }
+}
 
+// function to test some theories or check code.
 function testFunc() {
     // print(JSON.stringify(Game.creeps));
     for(let creepName in Game.creeps) {
@@ -19,29 +34,127 @@ function testFunc() {
     }
 }
 
-function runCreepsAndDeleteDead(){
-    for(var name in Memory.creeps) {
+function deleteDeadCreeps(){
+    for(let name in Memory.creeps) {
         if(!Game.creeps[name]){
             delete Memory.creeps[name];
+        }
+    }
+}
+
+// This function returns calculated roles needed in a room or returned manualRoles
+function calculateNeededRoles() {
+    if (enableManualRoles){
+        return manualRoles
+    }
+    print("calculateNeededRoles NOT IMPLEMENTED YET")
+}
+
+// This function returns roles to
+function distributeEnergySupplyRoles(roomCreeps, roles) {
+    let [creepsCanChangeRole, rolesNeeded] = getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles)
+    for (let role in rolesNeeded){
+        if (creepsCanChangeRole.length === 0){
+            break;
+        }
+        if (role === 'miner' || role === 'raider' || role === 'helper' || rolesNeeded[role] === 0){
             continue;
         }
-        let creep = Game.creeps[name];
-        runCreepProgram(creep.memory.role, creep);
+        let changedRoles = 0
+        for (let i = 0; i < rolesNeeded[role]; i++){
+            if (creepsCanChangeRole.length === 0){
+                break;
+            }
+            let creep = creepsCanChangeRole.pop()
+            print('change role of creep', creep.name, 'from', creep.memory.role, 'to', role)
+            creep.memory.role = role
+            changedRoles += 1
+        }
+        rolesNeeded[role] -= changedRoles
+    }
+
+    let rolesToCreate = []
+    for (let role in rolesNeeded){
+        if (rolesNeeded[role] > 0){
+            rolesToCreate.push(role)
+        }
+    }
+    return rolesToCreate
+}
+
+// Returns creeps with roles that is currently more than needed now and roles needed to be created
+function getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles){
+    let creepsCanChangeRole = []
+    for(let creepName in roomCreeps) {
+        let creep = roomCreeps[creepName]
+        if(roles[creep.memory.role] > 0){
+            roles[creep.memory.role] -= 1
+        }
+        else{
+            creepsCanChangeRole.push(creep)
+        }
+    }
+    return [creepsCanChangeRole, roles];
+}
+
+function roleToCreateNext(rolesToCreate) {
+    if ('miner' in rolesToCreate){
+        return 'miner'
+    }
+    if ('spawnHelper' in rolesToCreate){
+        return 'spawnHelper'
+    }
+    if ('updater' in rolesToCreate){
+        return 'updater'
+    }
+    if ('towerWorker' in rolesToCreate){
+        return 'towerWorker'
+    }
+    if ('helper' in rolesToCreate){
+        return 'helper'
+    }
+    return 'updater'
+}
+
+function createCreepIfEnoughEnergy(roomName, role) {
+    let spawn = Game.spawns['mama']  // TODO filter right spawn
+    let body = getBodyByRole(role)
+    let creepName = getCreepName(role)
+    // let structuresOrder = findClosestByRange()
+    let result = spawn.spawnCreep(body, creepName, {memory: {role: role, roomName: roomName}})
+    if (result === OK){
+        print('create creep', creepName, 'with role', role, 'and body', body)
     }
 }
 
-
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-}
-
-function getKeysWithZeros(dictToCopy){
-    let dict = {}
-    for(let field in dictToCopy){
-        dict[field] = 0
+function getBodyByRole(role) { // TODO get available energy
+    if (role === 'miner'){
+        return [WORK, WORK, WORK, WORK, WORK, MOVE, CARRY]
     }
-    return dict
+    if (role === 'helper'){
+        return [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, WORK, MOVE, CARRY, WORK]
+    }
+    return [MOVE, CARRY, WORK, MOVE, MOVE, CARRY, WORK, CARRY, MOVE, CARRY, WORK]
 }
+
+function getCreepName(role) {
+    if (role === 'miner'){
+        return 'miner' + Game.time
+    }
+    return Game.time
+}
+
+// function getRandomInt(max) {
+//     return Math.floor(Math.random() * max);
+// }
+//
+// function getKeysWithZeros(dictToCopy){
+//     let dict = {}
+//     for(let field in dictToCopy){
+//         dict[field] = 0
+//     }
+//     return dict
+// }
 
 let spawnName = "Spawn1";
 let minCreepCost = 500;
@@ -114,112 +227,112 @@ let CreepSpawnData = class{
         }
     }
 }
-
-function distributeProfessionTime(){
-    // TODO optimize of delete
-    for(let name in Game.creeps) {
-        let creep = Game.creeps[name];
-         // We distribute only general supply roles.
-         // Body (abilities they have) spesific roles should stick for all lifetime.
-         // In other words, miners should mine because they have a lot of [work].
-        // if (!(creep.memory.role === 'worker' || 
-        //       creep.memory.role === 'updater'|| 
-        //       creep.memory.role === 'builder')){
-
-
-        // }
-        for(let name2 in Game.creeps) {
-            let creep2 = Game.creeps[name2];
-            if(creep.name === creep2.name){
-                continue;
-            }
-            if(creep.memory.role_since === creep2.memory.role_since){
-                creep.memory.role_since = getRandomInt(creepCanChangeProfessionIn)
-                break;
-            }
-        }
-    }
-}
-
-function calculateNowProfessions(){
-    let nowProfessions = getKeysWithZeros(minProfessions);
-    for(let name in Game.creeps) {
-        let creep = Game.creeps[name];
-        if (creep.memory.role_since == null) {
-            creep.memory.role_since = Game.time;
-        }
-        nowProfessions[creep.memory.role] += 1;
-    }
-    return nowProfessions
-}
-
-function createMinProfessions(nowProfessions){
-    for (let profession in nowProfessions) {
-        for(let name in Game.creeps) {
-            let creep = Game.creeps[name];
-            // Create needed min unit
-            if ((Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null)
-                && creep.memory.role !== "helper" && creep.memory.role !== "raider" && creep.memory.role !== "miner") {
-                let needCreate = minProfessions[profession] - nowProfessions[profession];
-                if (needCreate > 0) {
-                    creep.memory.role = profession;
-                    creep.memory.role_since = Game.time;
-                    nowProfessions[profession] -= 1;
-                }
-                else{
-                    break;
-                }
-            }
-        }
-    }
-}
-
-
-function checkMaxProfessions(){
-    let helpers = 0
-    let raiders = 0
-    for(let name in Game.creeps) {
-        let creep = Game.creeps[name];
-        if(creep.memory.role === "helper"){
-            helpers ++
-        }
-        if(creep.memory.role === "raider"){
-            raiders ++
-        }
-    }
-    if(helpers > maxProfessions['helper']){
-        for(let name in Game.creeps) {
-            let creep = Game.creeps[name];
-            if (creep.pos.roomName === roomName && helpers > maxProfessions['helper']) {
-                creep.memory.role = undefined;
-                helpers --
-            }
-        }
-    }
-    if(raiders > maxProfessions['raider']) {
-        for (let name in Game.creeps) {
-            let creep = Game.creeps[name];
-            if (creep.pos.roomName === roomName && raiders > maxProfessions['raider']) {
-                creep.memory.role = undefined;
-                raiders--
-            }
-        }
-    }
-}
-
-function creepLogs(){
-    print("__________________________")
-    for(let name in Game.creeps) {
-        let creep = Game.creeps[name];
-        print("role of creep", creep.name, " prof since ", Game.time - creep.memory.role_since, " prof is ", creep.memory.role, " ttl", creep.ticksToLive)
-    }
-}
-
-function canCreateExternalRoomCreeps(professionsNow){
-    return (creepAmount - minProfessions['raider'] - minProfessions['helper']) < _(Game.creeps).size()
-}
-
-function creepManager(){
+//
+// function distributeProfessionTime(){
+//     // TODO optimize of delete
+//     for(let name in Game.creeps) {
+//         let creep = Game.creeps[name];
+//          // We distribute only general supply roles.
+//          // Body (abilities they have) spesific roles should stick for all lifetime.
+//          // In other words, miners should mine because they have a lot of [work].
+//         if (!(creep.memory.role === 'worker' ||
+//               creep.memory.role === 'updater'||
+//               creep.memory.role === 'builder')){
+//
+//
+//         }
+//         for(let name2 in Game.creeps) {
+//             let creep2 = Game.creeps[name2];
+//             if(creep.name === creep2.name){
+//                 continue;
+//             }
+//             if(creep.memory.role_since === creep2.memory.role_since){
+//                 creep.memory.role_since = getRandomInt(creepCanChangeProfessionIn)
+//                 break;
+//             }
+//         }
+//     }
+// }
+//
+// function calculateNowProfessions(){
+//     let nowProfessions = getKeysWithZeros(minProfessions);
+//     for(let name in Game.creeps) {
+//         let creep = Game.creeps[name];
+//         if (creep.memory.role_since == null) {
+//             creep.memory.role_since = Game.time;
+//         }
+//         nowProfessions[creep.memory.role] += 1;
+//     }
+//     return nowProfessions
+// }
+//
+// function createMinProfessions(nowProfessions){
+//     for (let profession in nowProfessions) {
+//         for(let name in Game.creeps) {
+//             let creep = Game.creeps[name];
+//             // Create needed min unit
+//             if ((Game.time - creep.memory.role_since >= creepCanChangeProfessionIn || creep.memory.role == null)
+//                 && creep.memory.role !== "helper" && creep.memory.role !== "raider" && creep.memory.role !== "miner") {
+//                 let needCreate = minProfessions[profession] - nowProfessions[profession];
+//                 if (needCreate > 0) {
+//                     creep.memory.role = profession;
+//                     creep.memory.role_since = Game.time;
+//                     nowProfessions[profession] -= 1;
+//                 }
+//                 else{
+//                     break;
+//                 }
+//             }
+//         }
+//     }
+// }
+//
+//
+// function checkMaxProfessions(){
+//     let helpers = 0
+//     let raiders = 0
+//     for(let name in Game.creeps) {
+//         let creep = Game.creeps[name];
+//         if(creep.memory.role === "helper"){
+//             helpers ++
+//         }
+//         if(creep.memory.role === "raider"){
+//             raiders ++
+//         }
+//     }
+//     if(helpers > maxProfessions['helper']){
+//         for(let name in Game.creeps) {
+//             let creep = Game.creeps[name];
+//             if (creep.pos.roomName === roomName && helpers > maxProfessions['helper']) {
+//                 creep.memory.role = undefined;
+//                 helpers --
+//             }
+//         }
+//     }
+//     if(raiders > maxProfessions['raider']) {
+//         for (let name in Game.creeps) {
+//             let creep = Game.creeps[name];
+//             if (creep.pos.roomName === roomName && raiders > maxProfessions['raider']) {
+//                 creep.memory.role = undefined;
+//                 raiders--
+//             }
+//         }
+//     }
+// }
+//
+// function creepLogs(){
+//     print("__________________________")
+//     for(let name in Game.creeps) {
+//         let creep = Game.creeps[name];
+//         print("role of creep", creep.name, " prof since ", Game.time - creep.memory.role_since, " prof is ", creep.memory.role, " ttl", creep.ticksToLive)
+//     }
+// }
+//
+// function canCreateExternalRoomCreeps(professionsNow){
+//     return (creepAmount - minProfessions['raider'] - minProfessions['helper']) < _(Game.creeps).size()
+// }
+//
+function creepManagerOld(){
     testFunc()
     // updateEnergyHistory()
     distributeProfessionTime()
@@ -255,25 +368,25 @@ function creepManager(){
     print("creep amount", creepAmount)
     runCreepsAndDeleteDead();
 }
-
-
-function runCreepProgram(creepProfession, creep){
-    switch(creepProfession){
-        case "builder":
-            return require('role.builder').run(creep);
-        case "miner":
-            return require('role.miner').run(creep);
-        case "towerWorker":
-            return require('role.towerWorker').run(creep);
-        case "updater":
-            return require('role.updater').run(creep);
-        case "worker":
-            return require('role.worker').run(creep);
-        case "helper":
-            return require('role.helper').run(creep);
-        case "raider":
-            return require('role.raider').run(creep);
-    }
-}
-
+//
+//
+// function runCreepProgram(creepProfession, creep){
+//     switch(creepProfession){
+//         case "builder":
+//             return require('role.builder').run(creep);
+//         case "miner":
+//             return require('role.miner').run(creep);
+//         case "towerWorker":
+//             return require('role.towerWorker').run(creep);
+//         case "updater":
+//             return require('role.updater').run(creep);
+//         case "worker":
+//             return require('role.worker').run(creep);
+//         case "helper":
+//             return require('role.helper').run(creep);
+//         case "raider":
+//             return require('role.raider').run(creep);
+//     }
+// }
+//
 module.exports = creepManager;

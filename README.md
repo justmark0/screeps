@@ -14,5 +14,23 @@ And here towers are updating some constructions, and bots are updating controlle
 
 https://user-images.githubusercontent.com/54911879/193471718-22d9b7dd-0982-48d5-b170-93dc0b57d95d.mp4
 
+
+## Roles
+#### Miner
+Sets a source to itself and mines it, after it got max capacity it stores it in link, if there is no link in container, if there is no container either just drops it.
+
+### Energy distribution
+- **updater** - sends energy to controller.
+- **spawnHelper** - sends energy to spawn and extentions.
+- **towerWorker** - sends energy to towers.
+- **builder** - sends energy to new constructions.
+
+### Raiders
+Groups of creeps to invade to other rooms. TBA
+
+### Helpers 
+Creeps to carry energy to other rooms to help friends or my own rooms <3
+
+
 ### Contacts
 If you have any questions or suggestions please let me know! My active contacts in my github profile.

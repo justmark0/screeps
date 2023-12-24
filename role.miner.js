@@ -1,6 +1,10 @@
-const { minProfessions } = require('./constants');
+const { minProfessions } = require('./config');
 
 let print = console.log;
+
+// var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+//     filter: (structure) => structure.hits < structure.hitsMax
+// });
 
 function getNearestStructByType(structure_type){
     let structures = creep.room.find(FIND_STRUCTURES, {

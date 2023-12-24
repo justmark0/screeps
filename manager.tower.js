@@ -1,5 +1,5 @@
 let print = console.log;
-let roomName = require('constants').roomName
+let roomName = require('config').roomName
 
 
 function repair(tower, tower_id){

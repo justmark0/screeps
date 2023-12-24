@@ -1,6 +1,6 @@
-var creepManager = require('manager.creeps');
-var towerManager = require('manager.tower');
-// this module is manages amount of creeps
+let creepManager = require('manager.creeps');
+let towerManager = require('manager.tower');
+
 
 module.exports.loop = function () {
     creepManager()

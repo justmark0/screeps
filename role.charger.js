@@ -1,5 +1,5 @@
 let print = console.log;
-let roomName = require('constants').roomName
+let roomName = require('config').roomName
 
 function goToTarget(creep, goals){
     goals = _.map(goals, function(source) {
