@@ -8,8 +8,9 @@ const {
     maxRolesConfig,
     manualRoles,
     enableManualRoles,
-} = require('./config.js');
-let cooldown = 100
+} = require('config');
+// костыль на время чтобы не думать о умном создании крипов пока
+let coolDown = 100
 
 // One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
 function creepManager() {
@@ -122,19 +123,48 @@ function createCreepIfEnoughEnergy(roomName, role) {
     let creepName = getCreepName(role)
     // let structuresOrder = findClosestByRange()
     let result = spawn.spawnCreep(body, creepName, {memory: {role: role, roomName: roomName}})
-    if (result === OK){
-        print('create creep', creepName, 'with role', role, 'and body', body)
+    if (result !== OK){
+        print('cant create creep', creepName, 'with role', role, 'and body', body, 'because', result)
     }
 }
 
-function getBodyByRole(role) { // TODO get available energy
+function getBodyByRole(role, availableEnergy) { // TODO get available energy
     if (role === 'miner'){
-        return [WORK, WORK, WORK, WORK, WORK, MOVE, CARRY]
+        if (availableEnergy < 300){
+            return []
+        }
+        let maxBody = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK]
+        return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'helper'){
-        return [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, WORK, MOVE, CARRY, WORK]
+        if (availableEnergy < 300){
+            return []
+        }
+        let maxBody = [MOVE, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, CARRY]
+        return getMaxParams(maxBody, availableEnergy)
     }
-    return [MOVE, CARRY, WORK, MOVE, MOVE, CARRY, WORK, CARRY, MOVE, CARRY, WORK]
+    return getMaxParams([MOVE, CARRY, WORK, MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK], availableEnergy)
+}
+
+function getMaxParams(params, availableEnergy){
+    let featureCost = {
+        "move": 50,
+        "work": 100,
+        "attack": 80,
+        "carry": 50,
+        "heal": 250,
+        "ranged_attack": 150,
+        "tough": 10,
+        "claim": 600
+    };
+    let resultParams = [];
+    for (let i = 0; i < params.length; i++){
+        if (availableEnergy - featureCost[params[i]] >= 0){
+            resultParams.push(params[i])
+            availableEnergy -= featureCost[params[i]]
+        }
+    }
+    return resultParams
 }
 
 function getCreepName(role) {
@@ -143,6 +173,7 @@ function getCreepName(role) {
     }
     return Game.time
 }
+
 
 // function getRandomInt(max) {
 //     return Math.floor(Math.random() * max);
