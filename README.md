@@ -24,6 +24,7 @@ Sets a source to itself and mines it, after it got max capacity it stores it in 
 - **spawnHelper** - sends energy to spawn and extentions.
 - **towerWorker** - sends energy to towers.
 - **builder** - sends energy to new constructions.
+- **storer** - sends energy to storage.
 
 ### Raiders
 Groups of creeps to invade to other rooms. TBA

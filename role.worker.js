@@ -10,7 +10,7 @@ function getTargets(creep){
                 structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
         }
     });
-    if (targets.length == 0){
+    if (targets.length === 0){
         return creep.room.find(FIND_STRUCTURES, {
         filter: (structure) => {
             return (
@@ -40,22 +40,22 @@ var roleWorker = {
         }
 
         if(creep.memory.work) {
-            var targets = getTargets(creep);
-            for(var id in targets){
-                if(creep.transfer(targets[id], RESOURCE_ENERGY) === OK){
-                    return;
-                }
+            let targets = getTargets(creep);
+            let target = creep.pos.findClosestByPath(targets);
+            let res = creep.transfer(target, RESOURCE_ENERGY)
+            if (res === ERR_NOT_IN_RANGE){
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#69ec3c'}});
+                return;
             }
-            require('role.charger').goToTarget(creep, targets);
+            if (res === OK) {
+                return;
+            }
+            print('worker: error share energy', res)
         }
         else {
             require('role.charger').run(creep);
         }
     },
-    
-    targetAmount: function(creep){
-        return getTargets(creep).length;
-    }
 };
 
 module.exports = roleWorker;

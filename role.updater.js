@@ -1,6 +1,5 @@
 
-
-var roleUpdater = {
+let roleUpdater = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
@@ -15,16 +14,13 @@ var roleUpdater = {
 
         if(creep.memory.work) {
             if(creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#69ec3c'}});
             }
         }
         else {
             require('role.charger').run(creep);
         }
     },
-    targetAmount: function(creep){
-        return 1;
-    }
 };
 
 module.exports = roleUpdater;

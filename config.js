@@ -1,16 +1,18 @@
 let print = console.log;
 let manualRoles = {
-    "miner": 0,
-    "spawnHelper": 3,
-    "updater":  4,
+    "miner": 2,
+    "spawnHelper": 0,
+    "updater":  0,
     "towerWorker": 0,
     "builder": 0,
     "helper": 0,
+    "worker": 4,
 }
-let enableManualRoles = false;
+let enableManualRoles = true;
 
 module.exports = {
-    roomNames : ["E56S7",],
+    roomNames : ["W2N2",],
+    playersNotAttack: ['StiveMan'],
     minProfessions:  {
         "miner": 1,
         "spawnHelper": 1,

@@ -1,18 +1,6 @@
 let print = console.log;
 
-function getTargets(creep){
-    var targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-            return (
-                    structure.structureType === STRUCTURE_TOWER
-                ) &&
-                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-        }
-    });
-    return targets;
-}
-
-var roleTowerWorker = {
+let roleTowerWorker = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
@@ -30,22 +18,28 @@ var roleTowerWorker = {
         }
 
         if(creep.memory.work) {
-            var targets = getTargets(creep);
-            for(var id in targets){
-                if(creep.transfer(targets[id], RESOURCE_ENERGY) === OK){
-                    return;
-                }
+            let target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                filter: (structure) => structure.type === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            });
+            if (target === null) {
+                // no towers to fill
+                return;
             }
-            require('role.charger').goToTarget(creep, targets);
+
+            let res = creep.transfer(target, RESOURCE_ENERGY)
+            if (res === ERR_NOT_IN_RANGE){
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#69ec3c'}});
+                return;
+            }
+            if (res === OK) {
+                return;
+            }
+            print('towerWorker: error share energy', res)
         }
         else {
             require('role.charger').run(creep);
         }
     },
-
-    targetAmount: function(creep){
-        return getTargets(creep).length;
-    }
 };
 
 module.exports = roleTowerWorker;

@@ -1,11 +1,11 @@
-function getTargets(creep){
-    return creep.room.find(FIND_CONSTRUCTION_SITES);
-}
 
-var roleBuilder = {
+let roleBuilder = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
+        if(creep.memory.building === undefined){
+            creep.memory.building = false;
+        }
 
         if(creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.building = false;
@@ -17,22 +17,25 @@ var roleBuilder = {
         }
 
         if(creep.memory.building) {
-            let targets = getTargets(creep);
-            for(var id in targets){
-                if(creep.build(targets[id]) === OK){
-                    return;
-                }
+            let target = pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+            if (target === null) {
+                // no construction sites
+                return;
             }
-            require('role.charger').goToTarget(creep, targets);
+            let res = creep.build(target);
+            if(res === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                return
+            }
+            if (res === OK) {
+                return;
+            }
+            print('builder: error building', res)
         }
         else {
             require('role.charger').run(creep);
         }
     },
-    
-    targetAmount: function(creep){
-        return getTargets(creep).length;
-    }
 };
 
 module.exports = roleBuilder;
