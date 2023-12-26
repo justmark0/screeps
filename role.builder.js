@@ -7,17 +7,17 @@ let roleBuilder = {
             creep.memory.building = false;
         }
 
-        if(creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
+        if(creep.memory.building && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.building = false;
             creep.say('🔋 get energy');
         }
-        if(!creep.memory.building && creep.store.getFreeCapacity() == 0) {
+        if(!creep.memory.building && creep.store.getFreeCapacity() === 0) {
             creep.memory.building = true;
             creep.say('🚧 build');
         }
 
         if(creep.memory.building) {
-            let target = pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+            let target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
             if (target === null) {
                 // no construction sites
                 return;

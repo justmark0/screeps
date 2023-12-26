@@ -18,7 +18,7 @@ let roleTowerWorker = {
         }
 
         if(creep.memory.work) {
-            let target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+            let target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                 filter: (structure) => structure.type === STRUCTURE_TOWER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
             });
             if (target === null) {

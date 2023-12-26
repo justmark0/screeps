@@ -1,14 +1,14 @@
 let print = console.log;
 
 function getStoreTargets(source_pos){
-    let nearestLink = source_pos.findClosestByRange(FIND_MY_STRUCTURES, {
-        filter: (structure) => structure.type === STRUCTURE_LINK && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    let nearestLink = source_pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: (structure) => structure.structureType === STRUCTURE_LINK && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
     if (nearestLink !== null) {
             return nearestLink
         }
-    let nearestContainer = source_pos.findClosestByRange(FIND_MY_STRUCTURES, {
-        filter: (structure) => structure.type === STRUCTURE_CONTAINER && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    let nearestContainer = source_pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.store !== undefined && s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
     if (nearestContainer !== null) {
         return nearestContainer
@@ -36,7 +36,9 @@ function getMineTarget(creep){
 
 var roleMiner = {
     run: function(creep) {
+        // structure.structureType === STRUCTURE_CONTAINER
 
+        print('asdf')
         if(creep.memory.mine === undefined){
             creep.memory.mine = true;
         }
@@ -71,17 +73,21 @@ var roleMiner = {
         else {
             // store
             let storeTarget = getStoreTargets(creep.pos)
-            // print("debug miner3 ", storeTarget)
             if (storeTarget === null) {
                 creep.say('️no stor🥺️️️');
                 creep.drop(RESOURCE_ENERGY);
                 return;
             }
             if(creep.transfer(storeTarget, RESOURCE_ENERGY) === OK){
+                if (storeTarget.structureType === STRUCTURE_LINK && storeTarget.store.getFreeCapacity(RESOURCE_ENERGY) < 50) {
+                    storeTarget.t
+                }
                 return;
             }
             if (Math.abs(creep.pos.x - storeTarget.pos.x) + Math.abs(creep.pos.y - storeTarget.pos.y) > 5) {
                 print('miner: storage too far away ', creep.pos, storeTarget.pos, JSON.stringify(storeTarget))
+                creep.drop(RESOURCE_ENERGY);
+                return;
             }
             creep.moveTo(storeTarget.pos, {visualizePathStyle: {stroke: '#b0d8d9'}});
         }

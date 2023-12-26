@@ -1,8 +1,8 @@
 let print = console.log;
 
 function addToArrayNearestIfExists(arr, pos, find_type) {
-    let nearestObject = pos.findClosestByRange(find_type, {
-        filter: (s) => s.store[RESOURCE_ENERGY] > 0
+    let nearestObject = pos.findClosestByPath(find_type, {
+        filter: (s) => (s.store !== undefined && s.store[RESOURCE_ENERGY] > 0) || (s.amount !== undefined && s.amount > 0)
     });
     if (nearestObject !== null) {
         arr.push(nearestObject);
@@ -16,23 +16,25 @@ var roleCharger = {
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_TOMBSTONES);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_RUINS);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_DROPPED_RESOURCES);
-        let nearestStorageOrContainer = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
-            filter: (s) => s.store[RESOURCE_ENERGY] > 0 && (s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER)
+        let nearestStorageOrContainer = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+            filter: (s) => s.store !== undefined && s.store[RESOURCE_ENERGY] > 0 && ((s.structureType === STRUCTURE_STORAGE && s.my) || s.structureType === STRUCTURE_CONTAINER)
         });
         if (nearestStorageOrContainer !== null) {
             chargeSources.push(nearestStorageOrContainer);
         }
-        let nearestSource = creep.pos.findClosestByRange(chargeSources);
+        let nearestSource = creep.pos.findClosestByPath(chargeSources);
 
         if (nearestSource !== null) {
             let res = creep.pickup(nearestSource);
             if (res === ERR_NOT_IN_RANGE) {
                 creep.moveTo(nearestSource.pos, {visualizePathStyle: {stroke: '#36e772'}});
+                return;
             }
             if (res === ERR_INVALID_TARGET){
                 res = creep.withdraw(nearestSource, RESOURCE_ENERGY);
                 if (res === ERR_NOT_IN_RANGE) {
                     creep.moveTo(nearestSource.pos, {visualizePathStyle: {stroke: '#36e772'}});
+                    return;
                 }
             }
             if (res === OK) {
@@ -41,7 +43,9 @@ var roleCharger = {
             creep.say('🆘');
             return;
         }
-        creep.say('1🆘');
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+        if(creep.harvest(source) === OK){return;}
+        goToTarget(creep, source);
     },
 };
 

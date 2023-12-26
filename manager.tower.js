@@ -35,7 +35,7 @@ function heal(tower){
 }
 
 function towerManager(){
-    for (let roomName in roomNames){
+    for (let roomName of roomNames){
         roomTowerManager(roomName)
     }
 }
