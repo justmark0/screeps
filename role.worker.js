@@ -42,6 +42,10 @@ var roleWorker = {
         if(creep.memory.work) {
             let targets = getTargets(creep);
             let target = creep.pos.findClosestByPath(targets);
+            if (target === null) {
+                // no structures to fill
+                return;
+            }
             let res = creep.transfer(target, RESOURCE_ENERGY)
             if (res === ERR_NOT_IN_RANGE){
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#69ec3c'}});
@@ -50,7 +54,7 @@ var roleWorker = {
             if (res === OK) {
                 return;
             }
-            print('worker: error share energy', res)
+            print('worker', creep.name, ': error share energy', res)
         }
         else {
             require('role.charger').run(creep);

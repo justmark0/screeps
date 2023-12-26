@@ -15,32 +15,34 @@ let cooldown = 100
 function creepManager() {
     testFunc()
     deleteDeadCreeps()
+    // print('----------------------')
     for (let roomName of roomNames) {
         // print('roomName', roomName)
         let roomCreeps = []
         for (let creepName in Game.creeps) {
             let creep = Game.creeps[creepName];
+            // print('creep', JSON.stringify(creep))
             if (creep.room.name === roomName){
                 roomCreeps.push(creep)
             }
         }
-        // let roomCreeps = _(Game.creeps).filter((creep) => creep.room.name === roomName)
-        print('creeps', roomCreeps.length)
         let roles = calculateNeededRoles(roomName)
-        print('needed roles', JSON.stringify(roles))
+        // print('needed roles', JSON.stringify(roles))
         let rolesToCreate = distributeEnergySupplyRoles(roomCreeps, roles)
+        // print('rolesToCreate', rolesToCreate)
         let nextRole = roleToCreateNext(rolesToCreate)
         print('nextRole', nextRole, rolesToCreate)
         if (!isNeedToCreateCreep(rolesToCreate)){
             continue
         }
-        print('createCreepIfEnoughEnergy', roomName, nextRole)
+        // print('createCreepIfEnoughEnergy', roomName, nextRole)
         createCreepIfEnoughEnergy(roomName, nextRole)
     }
     for (let creepName in Game.creeps) {
         let creep = Game.creeps[creepName]
         runCreepProgram(creep.memory.role, creep);
     }
+    print('----------------------')
 }
 
 // function to test some theories or check code.
@@ -75,17 +77,14 @@ function isNeedToCreateCreep(rolesToCreate) {
 
 // This function returns roles to
 function distributeEnergySupplyRoles(roomCreeps, roles) {
-    print('distributeEnergySupplyRoles', JSON.stringify(roles))
     let [creepsCanChangeRole, rolesNeeded] = getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles)
     for (let role in rolesNeeded){
         if (creepsCanChangeRole.length === 0){
             break;
         }
-        print('distribution', role, rolesNeeded[role])
         if (role === 'miner' || role === 'raider' || role === 'helper' || rolesNeeded[role] === 0){
             continue;
         }
-        print('not skipped')
         let changedRoles = 0
         for (let i = 0; i < rolesNeeded[role]; i++){
             if (creepsCanChangeRole.length === 0){
@@ -113,7 +112,6 @@ function getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles){
     if (roomCreeps.length === 0 || roomCreeps.length === undefined) {
         return [[], roles]
     }
-    // print(typeof(roomCreeps), JSON.stringify(roomCreeps), roomCreeps.length)
     let creepsCanChangeRole = []
     for(let creepName in roomCreeps) {
         // print(creepName)

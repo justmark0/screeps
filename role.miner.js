@@ -1,8 +1,11 @@
 let print = console.log;
+const {
+    minerData
+} = require('config')
 
 function getStoreTargets(source_pos){
     let nearestLink = source_pos.findClosestByPath(FIND_MY_STRUCTURES, {
-        filter: (structure) => structure.structureType === STRUCTURE_LINK && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        filter: (s) => s.structureType === STRUCTURE_LINK && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
     if (nearestLink !== null) {
             return nearestLink
@@ -20,8 +23,9 @@ function getMineTarget(creep){
     let targets = creep.room.find(FIND_SOURCES_ACTIVE);
     for (let target of targets) {
         let returnTarget = true;
-        for (let creep in Memory.creeps) {
-            if (creep.mine_source === target.id){
+        for (let creepName in Game.creeps) {
+            let creep = Game.creeps[creepName]
+            if (creep.memory.role === 'miner' && creep.memory.mineTarget === target.id){
                 returnTarget = false;
                 break;
             }
@@ -34,54 +38,57 @@ function getMineTarget(creep){
 }
 
 
-var roleMiner = {
+let roleMiner = {
     run: function(creep) {
-        // structure.structureType === STRUCTURE_CONTAINER
-
-        print('asdf')
         if(creep.memory.mine === undefined){
             creep.memory.mine = true;
         }
-        print("debug miner1 ", creep.memory.mine)
 
         if(creep.memory.mine && creep.store.getFreeCapacity() === 0) {
             creep.memory.mine = false;
-            creep.say('🔋 give');
+            // creep.say('🔋 give');
         }
         if(!creep.memory.mine && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.mine = true;
-            creep.say('⛏️');
+            // creep.say('⛏️');
         }
 
         if(creep.memory.mine) {
             if (creep.memory.mineTarget === undefined) {
-                var targetID = getMineTarget(creep);
+                let targetID = getMineTarget(creep);
                 if (targetID === null) {
-                    creep.say('🥺️️️️️️ no sources');
+                    creep.say('no ene🥺️️️️️️');
                     return;
                 }
                 creep.memory.mineTarget = targetID;
             }
             let target = Game.getObjectById(creep.memory.mineTarget)
-            // print("debug miner2 ", target, targetID)
             if(creep.harvest(target) === OK){return;}
-            // if(creep.transfer(target, RESOURCE_ENERGY) === OK){
-            //     return;
-            // }
             creep.moveTo(Game.getObjectById(creep.memory.mineTarget).pos, {visualizePathStyle: {stroke: '#cef2db'}});
         }
         else {
-            // store
+            let creepLinkID = Game.getObjectById(minerData[creep.room.name][creep.memory.mineTarget])
+            if (creepLinkID !== null) {
+                if (creepLinkID[RESOURCE_ENERGY] > 700) {
+                    let storageLink = Game.getObjectById(minerData[creep.room.name]['storageLinkID'])
+                    if (storageLink !== null) {
+                        let res = creepLinkID.transferEnergy(storageLink)
+                        if (res === OK) {
+                            return;
+                        }
+                        print('miner: error transfer energy in links', res)
+                    }else { print('miner: no storageLinkID in config', creep.room.name, creep.memory.mineTarget);}
+                }
+            } else {print('miner: no linkID in config', creep.room.name, creep.memory.mineTarget);}
+
             let storeTarget = getStoreTargets(creep.pos)
             if (storeTarget === null) {
                 creep.say('️no stor🥺️️️');
                 creep.drop(RESOURCE_ENERGY);
                 return;
             }
-            if(creep.transfer(storeTarget, RESOURCE_ENERGY) === OK){
-                if (storeTarget.structureType === STRUCTURE_LINK && storeTarget.store.getFreeCapacity(RESOURCE_ENERGY) < 50) {
-                    storeTarget.t
-                }
+            if(creep.transfer(storeTarget, RESOURCE_ENERGY) !== OK){
+                creep.drop(RESOURCE_ENERGY);
                 return;
             }
             if (Math.abs(creep.pos.x - storeTarget.pos.x) + Math.abs(creep.pos.y - storeTarget.pos.y) > 5) {
