@@ -83,9 +83,9 @@ let roleMiner = {
                             return;
                         }
                         print('miner: error transfer energy in links', res)
-                    }else { print('miner: could not get creepLink by id in config', creep.room.name, creep.memory.mineTarget);}
-                }else { print('miner: no storageLinkID in config', creep.room.name, creep.memory.mineTarget);}
-            } else {print('miner: no linkID in config', creep.room.name, creep.memory.mineTarget);}
+                    }else {print('miner: no storageLinkID in config', creep.room.name, creep.memory.mineTarget)}
+                } // Do not send energy to storage if link is not full (fee will be high)
+            } else {print('miner: no linkID in config', creep.room.name, 'sourceID:', creep.memory.mineTarget);}
 
             let storeTarget = getStoreTargets(creep.pos)
             if (storeTarget === null) {

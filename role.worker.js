@@ -24,7 +24,7 @@ function getTarget(creep){
     if (target !== null){
         return target
     }
-    return creep.room.controller;
+    return null;
 }
 
 let roleWorker = {
@@ -47,24 +47,31 @@ let roleWorker = {
         if(creep.memory.work) {
             let target = getTarget(creep);
 
-            if (target === null) {
-                // no structures to fill, try to build
-
-                let target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+            if ((target !== null && target.structureType === STRUCTURE_TOWER) || (target === null) ) {
+                // no structures or only towers left, try to build
+                let targetBuild = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                if (targetBuild !== null) {
+                    // there is something to build. build it
+                    let res = creep.build(targetBuild);
+                    if(res === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(targetBuild, {visualizePathStyle: {stroke: '#ffffff'}});
+                        return
+                    }
+                    if (res === OK) {
+                        return;
+                    }
+                    if (res !== ERR_NO_BODYPART){
+                        print('worker: error building', res)
+                        return;
+                    } else {
+                        print('worker: could not build because no work body part')
+                    }
+                }
                 if (target === null) {
-                    // no construction sites
+                    // no structures to fill
+                    creep.say('no work🥺️️️️️️');
                     return;
                 }
-                let res = creep.build(target);
-                if(res === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-                    return
-                }
-                if (res === OK) {
-                    return;
-                }
-                print('worker: error building', res)
-                return;
             }
 
             let res = creep.transfer(target, RESOURCE_ENERGY)

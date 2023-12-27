@@ -4,7 +4,7 @@ let playersNotAttack =  require('config').playersNotAttack
 
 function getRepairTargets(roomName, amountOfFreeTowers){
     let damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
-        filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 10000000000
+        filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 1500000
     });
     if(damagedStructures.length === 0){
         return false;
@@ -19,6 +19,8 @@ function getRepairTargets(roomName, amountOfFreeTowers){
 
 function getAttackTargets(roomName, amountOfFreeTowers){
     let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS, {filter: (creep) => !playersNotAttack.includes(creep.owner.username)});
+    // print('toAttack', JSON.stringify(toAttack))
+    // print('amountOfFreeTowers', amountOfFreeTowers)
     if (toAttack.length === 0){
         return [];
     }
@@ -57,14 +59,16 @@ function roomTowerManager(roomName){
         return
     }
     towers.sort((a,b) => a.store[RESOURCE_ENERGY] < b.store[RESOURCE_ENERGY] ? -1 : 1);
-    print('sorted towers', JSON.stringify(towers))
+    // print('sorted towers', JSON.stringify(towers))
     let towerTargets = getAttackTargets(roomName, towers.length);
+    print('attack targets', JSON.stringify(towerTargets))
     let currentTower = 0;
     for (let towerTarget in towerTargets) {
         if (currentTower >= towers.length){
             return
         }
-        towers[currentTower].attack(towerTarget);
+        let target = towerTargets[towerTarget]
+        towers[currentTower].attack(target);
         currentTower++;
     }
 
@@ -87,7 +91,8 @@ function roomTowerManager(roomName){
         if (currentTower >= towers.length){
             return
         }
-        towers[currentTower].heal(healTarget);
+        let target = healTargets[healTarget]
+        towers[currentTower].heal(target);
         currentTower++;
     }
 

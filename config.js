@@ -1,11 +1,12 @@
 let manualRoles = {
     "miner": 2,
     "spawnHelper": 0,
-    "updater":  1,
+    "updater":  3,
     "towerWorker": 0,
-    "builder": 2,
+    "builder": 0,
     "helper": 0,
-    "worker": 2,
+    "claimer": 0,
+    "worker": 1,
 }
 let enableManualRoles = true;
 
@@ -17,6 +18,9 @@ module.exports = {
             "5bbcb06c9099fc012e63c259": "6583e59886ac8f4e61c82460",
             "5bbcb06c9099fc012e63c257": "",
         },
+    },
+    spawns: {
+        "E56S7": {"norm": ["Spawn1", ""], "power": ""},
     },
     playersNotAttack: ['StiveMan'],
     minProfessions:  {
