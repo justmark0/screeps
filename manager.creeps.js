@@ -10,15 +10,22 @@ const {
     enableManualRoles,
     spawns,
 } = require('config');
-let cooldown = 150
-let rolesNotToChange = ['miner', 'raider', 'helper', 'updater', 'claimer']
+let cooldown = 50
+let rolesToChange = ['miner', 'raider', 'helper', 'updater', 'claimer', 'attacker', 'healer']
 let recommendedRolesCost = {
     "miner": 500,
     "updater": 700,
     "claimer": 800,
+    "attacker": 1400,
+    "healer":1500,
     "worker": 300,
+    "raiderCarrier": 1000,
+    "raiderMiner": 600,
 }
 
+let bodyByRole = {
+    'attacker': [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK],
+}
 // One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
 function creepManager() {
     try {
@@ -27,6 +34,8 @@ function creepManager() {
         print('testFunc: ' + error.message);
     }
     deleteDeadCreeps()
+    require('manager.outCreeps').run();
+    setClaimerRoomTarget("", "E56S7")
     for (let roomName of roomNames) {
         print('=====roomName:', roomName)
         let roomCreeps = []
@@ -42,6 +51,7 @@ function creepManager() {
             print('Spawn cooldown', cooldown - (Game.time - Memory.lastSpawn[roomName]))
             continue;
         }
+
         let roles = calculateNeededRoles(roomName)
 
         let rolesNeededLog = ""
@@ -52,7 +62,8 @@ function creepManager() {
         }
         print('roles needed:', rolesNeededLog)
 
-        let rolesToCreate = distributeEnergySupplyRoles(roomCreeps, roles)
+        // let rolesToCreate = distributeEnergySupplyRoles(roomCreeps, roles)
+        let rolesToCreate = getRolesToCreate(roomCreeps, roles)
         let roomRoles = getRoomRoles(roomCreeps)
         let nextRole = roleToCreateNext(rolesToCreate, roomRoles)
 
@@ -65,11 +76,25 @@ function creepManager() {
         if (rolesToCreateLog !== ""){
             print('roles to create:', rolesToCreateLog, '. Next role:', nextRole)
         }
-
         if (!isNeedToCreateCreep(rolesToCreate)){
+            // try to create out creeps
+            let outCreepName = getOutCreepsForRoom(roomName)
+            if (outCreepName === null){
+                continue;
+            }
+            let outCreep = Memory.outCreeps[roomName][outCreepName]
+            let res = createCreepIfEnoughEnergy(roomName, outCreep['role'], roomRoles, outCreepName, outCreep['memory'])
+            if (res === OK){
+                print('creating outCreep', outCreepName)
+                Memory.outCreeps[roomName][outCreepName]['busy'] = true
+            }
             continue;
         }
-        createCreepIfEnoughEnergy(roomName, nextRole, roomRoles)
+        if (nextRole === null) {
+            continue
+        }
+        print('nextRole is', nextRole)
+        createCreepIfEnoughEnergy(roomName, nextRole, roomRoles, getCreepName(nextRole), null)
     }
     for (let creepName in Game.creeps) {
         let creep = Game.creeps[creepName]
@@ -77,12 +102,28 @@ function creepManager() {
     }
 }
 
+// notRoomCreeps: {
+//     "E56S7": {"attacker_1283": {"role": "attacker", "memory": {""}}},
+// },
+
+
 // function to test some theories or check code.
 function testFunc() {
-    // creep = Game.creeps['54173855']
+    // let res = getMaxParams( [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL], 10000)
+    // for (let creepName in Game.creeps) {
+    //     let creep = Game.creeps[creepName]
+    //     // creep.memory.role = 'worker'
+    //     if (creep.memory.role === 'healer'){
+    //         creep.memory.followCreepName = 'attacker54187845'
+    //     }
+    // }
+    Memory.creeps['pervinah']['role'] = 'raiderMiner'
+    // Memory.outCreeps['E56S7']['pervinah']['busy'] = true
+    // let pos = RoomPosition(25,25,'E56S7');
+    // Game.map.visual.circle(pos);
+    // Game.map.visual.circle(pos, {fill: 'transparent', radius: NUKE_RANGE*50, stroke: '#ff0000'});
     // Memory.lastSpawn = {"E56S7": Game.time}
     // print(JSON.stringify(Game));
-    // creep.memory.role = 'worker'
 }
 
 function deleteDeadCreeps(){
@@ -93,10 +134,21 @@ function deleteDeadCreeps(){
     }
 }
 
+function getOutCreepsForRoom(roomName){
+    for (let outCreep in Memory.outCreeps[roomName]){
+        if (Memory.outCreeps[roomName][outCreep]['busy'] === true){
+            continue
+        }
+        return outCreep
+    }
+    return null
+}
+
+
 // This function returns calculated roles needed in a room or returned manualRoles
-function calculateNeededRoles() {
+function calculateNeededRoles(roomName) {
     if (enableManualRoles){
-        return { ...manualRoles }
+        return { ...manualRoles[roomName] }
     }
     print("calculateNeededRoles NOT IMPLEMENTED YET")
 }
@@ -125,14 +177,28 @@ function creepInfo(roomCreeps, roomName){
         print('creep', roomCreeps[2].memory.role, 'will die in', roomCreeps[2].ticksToLive)
     }
 }
-// function NeedToCreateCreep(roomCreeps, rolesNeeded) {
-//     for (let role in rolesNeeded){
-//         if (rolesNeeded[role] > 0){
-//             return true
-//         }
-//     }
-//     return false
-// }
+
+function setClaimerRoomTarget(creepName, roomName){
+
+}
+
+function getRolesToCreate(roomCreeps, roles) {
+    if (roomCreeps.length === 0 || roomCreeps.length === undefined) {
+        return [[], roles]
+    }
+    for(let creepName in roomCreeps) {
+        let creep = roomCreeps[creepName]
+        roles[creep.memory.role] -= 1
+    }
+    let rolesToCreate = [] // todo maybe change to set
+    for (let role in roles){
+        if (roles[role] > 0){
+            rolesToCreate.push(role)
+        }
+    }
+    print('rolestocreate', rolesToCreate)
+    return rolesToCreate;
+}
 
 // This function returns roles to
 function distributeEnergySupplyRoles(roomCreeps, roles) {
@@ -190,55 +256,48 @@ function getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles){
 
 function roleToCreateNext(rolesToCreate, roomRoles) {
     let isRoomHasMiner = roomRoles.has('miner')
+    let rolesPosition = []
     if (isRoomHasMiner){
-        if (rolesToCreate.includes('worker')){
-            return 'worker'
-        }
-        if (rolesToCreate.includes('miner')){
-            return 'miner'
-        }
+        rolesPosition = ['worker', 'miner']
     } else {
-        if (rolesToCreate.includes('miner')){
-            return 'miner'
+        rolesPosition = ['miner', 'worker']
+    }
+    rolesPosition = rolesPosition.concat([
+        'updater',
+        'towerWorker',
+        'helper',
+        'claimer',
+        'attacker',
+        'healer',
+        'raiderMiner',
+        'raiderCarrier']
+    )
+    for (let roleInt in rolesPosition) {
+        if (rolesToCreate.includes(rolesPosition[roleInt])){
+            return rolesPosition[roleInt]
         }
-        if (rolesToCreate.includes('worker')){
-            return 'worker'
-        }
     }
-
-    if (rolesToCreate.includes('updater')){
-        return 'updater'
-    }
-    if (rolesToCreate.includes('towerWorker')){
-        return 'towerWorker'
-    }
-    if (rolesToCreate.includes('helper')){
-        return 'helper'
-    }
-    if (rolesToCreate.includes('claimer')){
-        return 'claimer'
-    }
-    if (rolesToCreate.includes('worker')){
-        return 'worker'
-    }
-    return 'updater'
+    return null
 }
 
-function createCreepIfEnoughEnergy(roomName, role, roomRoles) {
+function createCreepIfEnoughEnergy(roomName, role, roomRoles, creepName, memory) {
     let spawn = Game.spawns[spawns[roomName]['norm'][0]]  // TODO filter right spawn
     if (spawn === undefined){
         print('NO SPAWN IN CONFIG')
     }
     let body = getBodyByRole(role, spawn.room.energyAvailable, roomRoles)
     if (body.length === 0){
-        return
+        return -100
     }
-    let creepName = getCreepName(role)
     // let structuresOrder = findClosestByRange()
-    let result = spawn.spawnCreep(body, creepName, {memory: {role: role}})
+    if (memory === null){
+        memory = {role: role}
+    }
+
+    let result = spawn.spawnCreep(body, creepName, {memory: memory})
     if (result === OK){
         Memory.lastSpawn[roomName] = Game.time
-        return
+        return OK
     }
     if (result !== ERR_BUSY){
         print('creep manager: can not create creep', creepName, 'with role', role, 'and body', body, 'because', result)
@@ -246,18 +305,21 @@ function createCreepIfEnoughEnergy(roomName, role, roomRoles) {
     // Primary spawn busy creating creep, using secondary.
     if (spawns[roomName]['norm'][1] !== ""){
         spawn = Game.spawns[spawns[roomName]['norm'][1]]  // TODO filter right spawn
-        result = spawn.spawnCreep(body, creepName, {memory: {role: role}})
+        result = spawn.spawnCreep(body, creepName, {memory: memory})
         if (result === OK){
             Memory.lastSpawn[roomName] = Game.time
-            return
+            delete Memory.outCreeps[roomName][creepName]
+            return OK
         }
         print('creep manager: can not create creep', creepName, 'with role', role, 'and body', body, 'because', result)
     }
+    return -100
 }
 
 function getBodyByRole(role, availableEnergy, roomRoles) {
     let minEnergy = 300
-    if (roomRoles.has('miner') && roomRoles.has('worker')){
+    let roomIsStable = roomRoles.has('miner') && roomRoles.has('worker')
+    if (roomIsStable){
         if (recommendedRolesCost[role] !== undefined){
             minEnergy = recommendedRolesCost[role]
             print('since room has miner and worker, minEnergy for', role, 'is ', minEnergy)
@@ -275,11 +337,30 @@ function getBodyByRole(role, availableEnergy, roomRoles) {
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'updater'){
-        let maxBody = [MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE]
+        let maxBody = [MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, WORK, WORK, WORK, WORK]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'claimer'){
         let maxBody = [MOVE, MOVE, MOVE, MOVE, CLAIM]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (!roomIsStable){
+        return []
+    }
+    if (role === 'attacker'){
+        let maxBody =  [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK]
+            return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'healer'){
+        let maxBody =  [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'raiderMiner'){
+        let maxBody =  [MOVE, MOVE, MOVE, MOVE, CARRY, WORK, WORK, WORK, CARRY]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'raiderCarrier'){
+        let maxBody =  [MOVE, MOVE, CARRY, CARRY, MOVE, MOVE, CARRY, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]
         return getMaxParams(maxBody, availableEnergy)
     }
     return getMaxParams([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, WORK], availableEnergy)
@@ -303,6 +384,7 @@ function getMaxParams(params, availableEnergy){
             availableEnergy -= featureCost[params[i]]
         }
     }
+    // print('getMaxParams cost', 10000-availableEnergy)
     return resultParams
 }
 function getCreepName(role) {
@@ -312,8 +394,8 @@ function getCreepName(role) {
     if (role === 'helper'){
         return 'helper' + Game.time
     }
-    if (role === 'miner'){
-        return '' + Game.time
+    if (role === 'attacker'){
+        return 'attacker' + Game.time
     }
     return Game.time
 }
@@ -334,6 +416,16 @@ function runCreepProgram(creepProfession, creep){
             return require('role.helper').run(creep);
         case "raider":
             return require('role.raider').run(creep);
+        case "claimer":
+            return require('role.claimer').run(creep);
+        case "attacker":
+            return require('role.attacker').run(creep);
+        case "healer":
+            return require('role.healer').run(creep);
+        case "raidCarrier":
+            return require('role.raiderCarrier').run(creep);
+        case "raiderMiner":
+            return require('role.raiderMiner').run(creep);
     }
 }
 

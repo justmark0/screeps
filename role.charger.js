@@ -2,7 +2,7 @@ let print = console.log;
 
 function addToArrayNearestIfExists(arr, pos, find_type) {
     let nearestObject = pos.findClosestByPath(find_type, {
-        filter: (s) => (s.store !== undefined && s.store[RESOURCE_ENERGY] > 0) || (s.amount !== undefined && s.amount > 0)
+        filter: (s) => (s.store !== undefined && s.store[RESOURCE_ENERGY] > 0) || (s.amount !== undefined && s.amount > 0) && s.pos.roomName === pos.roomName
     });
     if (nearestObject !== null) {
         arr.push(nearestObject);
@@ -50,7 +50,7 @@ let roleCharger = {
             creep.say('1🆘');
             return;
         }
-        creep.moveTo(creep, source);
+        creep.moveTo(source.pos);
     },
 };
 

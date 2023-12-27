@@ -18,7 +18,7 @@ function getRepairTargets(roomName, amountOfFreeTowers){
 }
 
 function getAttackTargets(roomName, amountOfFreeTowers){
-    let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS, {filter: (creep) => !playersNotAttack.includes(creep.owner.username)});
+    let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS);
     // print('toAttack', JSON.stringify(toAttack))
     // print('amountOfFreeTowers', amountOfFreeTowers)
     if (toAttack.length === 0){
@@ -27,10 +27,11 @@ function getAttackTargets(roomName, amountOfFreeTowers){
     // TODO smart selection of creeps to attack
     let targets = []
     for (let attackTarget of toAttack){
+
         if (targets.length >= amountOfFreeTowers){
             return targets
         }
-        for (let i = 0; i < Math.floor(attackTarget.hits/150); i++){
+        for (let i = 0; i < Math.floor(attackTarget.hits/150) + 1; i++){
             targets.push(attackTarget);
         }
     }
@@ -61,13 +62,14 @@ function roomTowerManager(roomName){
     towers.sort((a,b) => a.store[RESOURCE_ENERGY] < b.store[RESOURCE_ENERGY] ? -1 : 1);
     // print('sorted towers', JSON.stringify(towers))
     let towerTargets = getAttackTargets(roomName, towers.length);
-    print('attack targets', JSON.stringify(towerTargets))
+    // print('attack targets', JSON.stringify(towerTargets))
     let currentTower = 0;
     for (let towerTarget in towerTargets) {
         if (currentTower >= towers.length){
             return
         }
         let target = towerTargets[towerTarget]
+        print('ATACKK', target)
         towers[currentTower].attack(target);
         currentTower++;
     }

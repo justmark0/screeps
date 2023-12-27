@@ -8,11 +8,12 @@ var roleBuilder = {
             print('no claim flag, waiting')
             return;
         }
+        // TODO add destination in memory
         let flag = Game.flags['claim']
         if (creep.room.name === flag.pos.roomName){
             let res = creep.claimController(creep.room.controller);
             if (res === ERR_NOT_IN_RANGE){
-                creep.moveTo(creep.room.controller);
+                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
                 return;
             }
             if (res === OK) {
@@ -20,7 +21,7 @@ var roleBuilder = {
             }
             print('claimer: error claim', res)
         }
-        creep.moveTo(flag.pos);
+        creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
     },
 };
 
