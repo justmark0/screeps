@@ -9,7 +9,8 @@ const {
     manualRoles,
     enableManualRoles,
 } = require('config');
-let cooldown = 100
+let cooldown = 150
+let rolesNotToChange = ['miner', 'raider', 'helper', 'updater']
 
 // One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
 function creepManager() {
@@ -31,7 +32,7 @@ function creepManager() {
         let rolesToCreate = distributeEnergySupplyRoles(roomCreeps, roles)
         // print('rolesToCreate', rolesToCreate)
         let nextRole = roleToCreateNext(rolesToCreate)
-        print('nextRole', nextRole, rolesToCreate)
+        // print('nextRole', nextRole, rolesToCreate)
         if (!isNeedToCreateCreep(rolesToCreate)){
             continue
         }
@@ -47,12 +48,8 @@ function creepManager() {
 
 // function to test some theories or check code.
 function testFunc() {
-    // print(JSON.stringify(Game.creeps));
-    // for(let creepName in Game.creeps) {
-    //     creep = Game.creeps[creepName]
-    //     print('mlem1', _(Game.creeps).filter((creep) => creep.room.name === 'W2N2'))
-    //     // creep.memory.role = 'worker'
-    // }
+    creep = Game.creeps['miner54172256']
+    creep.memory.role = 'worker'
 }
 
 function deleteDeadCreeps(){
@@ -75,14 +72,25 @@ function isNeedToCreateCreep(rolesToCreate) {
     return rolesToCreate.length !== 0;
 }
 
+// function NeedToCreateCreep(roomCreeps, rolesNeeded) {
+//     for (let role in rolesNeeded){
+//         if (rolesNeeded[role] > 0){
+//             return true
+//         }
+//     }
+//     return false
+// }
+
 // This function returns roles to
 function distributeEnergySupplyRoles(roomCreeps, roles) {
     let [creepsCanChangeRole, rolesNeeded] = getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles)
+    // print('creepsCanChangeRole', JSON.stringify(creepsCanChangeRole))
+    // print('rolesNeeded', JSON.stringify(rolesNeeded))
     for (let role in rolesNeeded){
         if (creepsCanChangeRole.length === 0){
             break;
         }
-        if (role === 'miner' || role === 'raider' || role === 'helper' || rolesNeeded[role] === 0){
+        if (rolesNotToChange.includes(role) || rolesNeeded[role] === 0){
             continue;
         }
         let changedRoles = 0
@@ -114,12 +122,14 @@ function getCreepsCanChangeRoleAndRolesRemaining(roomCreeps, roles){
     }
     let creepsCanChangeRole = []
     for(let creepName in roomCreeps) {
-        // print(creepName)
         let creep = roomCreeps[creepName]
         if(roles[creep.memory.role] > 0){
             roles[creep.memory.role] -= 1
         }
         else{
+            if (rolesNotToChange.includes(creep.memory.role)){
+                continue;
+            }
             creepsCanChangeRole.push(creep)
         }
     }
@@ -152,7 +162,7 @@ function createCreepIfEnoughEnergy(roomName, role) {
     if (Game.time - Memory.lastSpawn < cooldown){
         return
     }
-    let spawn = Game.spawns['mama']  // TODO filter right spawn
+    let spawn = Game.spawns['Spawn1']  // TODO filter right spawn
     let body = getBodyByRole(role, spawn.room.energyAvailable)
     if (body.length === 0){
         return
@@ -171,24 +181,22 @@ function createCreepIfEnoughEnergy(roomName, role) {
 
 function getBodyByRole(role, availableEnergy) { // TODO get available energy
     // print('try max params')
-    if (role === 'miner'){
-        if (availableEnergy < 300){
-            return []
-        }
-        let maxBody = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK]
-        return getMaxParams(maxBody, availableEnergy)
-    }
-    if (role === 'helper'){
-        if (availableEnergy < 300){
-            return []
-        }
-        let maxBody = [MOVE, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, CARRY]
-        return getMaxParams(maxBody, availableEnergy)
-    }
     if (availableEnergy < 300){
         return []
     }
-    return getMaxParams([MOVE, CARRY, WORK, MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK], availableEnergy)
+    if (role === 'miner'){
+        let maxBody = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'helper'){
+        let maxBody = [MOVE, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, CARRY]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'updater'){
+        let maxBody = [MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    return getMaxParams([MOVE, CARRY, MOVE, CARRY, WORK, MOVE, CARRY, WORK,  MOVE, CARRY], availableEnergy)
 }
 
 function getMaxParams(params, availableEnergy){

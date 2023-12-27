@@ -2,11 +2,7 @@ let print = console.log;
 let roomNames = require('config').roomNames
 let playersNotAttack =  require('config').playersNotAttack
 
-function getRepairTargets(tower, target){
-    if(tower.store[RESOURCE_ENERGY] < 700){
-        // if tower has not enough to defence, we do not repair
-        return []
-    }
+function getRepairTargets(roomName, amountOfFreeTowers){
     let damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
         filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 10000000000
     });
@@ -16,10 +12,7 @@ function getRepairTargets(tower, target){
     damagedStructures.sort((a,b) => a.hits < b.hits ? -1 : 1);
     let targets = []
     for (let i = 0; i < amountOfFreeTowers; i++){
-        targets.push({
-            target: damagedStructures[i],
-            method: 'repair',
-        });
+        targets.push(damagedStructures[i]);
     }
     return targets;
 }
@@ -27,7 +20,7 @@ function getRepairTargets(tower, target){
 function getAttackTargets(roomName, amountOfFreeTowers){
     let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS, {filter: (creep) => !playersNotAttack.includes(creep.owner.username)});
     if (toAttack.length === 0){
-        return false;
+        return [];
     }
     // TODO smart selection of creeps to attack
     let targets = []
@@ -36,20 +29,13 @@ function getAttackTargets(roomName, amountOfFreeTowers){
             return targets
         }
         for (let i = 0; i < Math.floor(attackTarget.hits/150); i++){
-            targets.push({
-                target: attackTarget,
-                method: 'attack',
-            });
+            targets.push(attackTarget);
         }
     }
     return targets;
 }
 
 function getHealTargets(tower){
-    if(tower.store[RESOURCE_ENERGY] < 600){
-        // if tower has not enough to defence, we do not heal
-        return []
-    }
     // TODO write logic to heal creeps
     return []
 }
@@ -61,36 +47,73 @@ function towerManager(){
 }
 
 function roomTowerManager(roomName){
-    let towers = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_TOWER}});
+    let towers = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
+        filter: (structure) => {
+            return structure.structureType === STRUCTURE_TOWER &&
+                structure.store[RESOURCE_ENERGY] >= 10;
+        }
+    });
     if (towers.length === 0){
         return
     }
+    towers.sort((a,b) => a.store[RESOURCE_ENERGY] < b.store[RESOURCE_ENERGY] ? -1 : 1);
+    print('sorted towers', JSON.stringify(towers))
+    let towerTargets = getAttackTargets(roomName, towers.length);
+    let currentTower = 0;
+    for (let towerTarget in towerTargets) {
+        if (currentTower >= towers.length){
+            return
+        }
+        towers[currentTower].attack(towerTarget);
+        currentTower++;
+    }
 
-    let amountOfFreeTowers = towers.length;
-    let towerTargets = getAttackTargets(roomName, amountOfFreeTowers);
-    amountOfFreeTowers = amountOfFreeTowers - attackTargets.length;
-    if (amountOfFreeTowers > 0){
-        let healTargets = getHealTargets(roomName, amountOfFreeTowers);
-        towerTargets.concat(healTargets)
-        amountOfFreeTowers = amountOfFreeTowers - healTargets.length;
-        if (amountOfFreeTowers > 0){
-            let repairTargets = getRepairTargets(roomName, amountOfFreeTowers);
-            towerTargets.concat(repairTargets)
+    for (;true;) {
+        if (currentTower >= towers.length){
+            return
         }
+        if (towers[currentTower].store[RESOURCE_ENERGY] < 600){
+            currentTower++;
+            continue;
+        }
+        break;
     }
-    let target = 0;
-    for(let tower_id in towers) {
-        let tower = towers[tower_id]
-        if (towerTargets[target].method === 'attack'){
-            tower.attack(towerTargets[target].target);
-        }
-        else if (towerTargets[target].method === 'heal'){
-            tower.heal(towerTargets[target].target);
-        }
-        else if (towerTargets[target].method === 'repair'){
-            tower.repair(towerTargets[target].target);
-        }
+    if (towers.length - currentTower <= 0){
+        return
     }
+
+    let healTargets = getHealTargets(roomName, towers.length - currentTower);
+    for (let healTarget in healTargets) {
+        if (currentTower >= towers.length){
+            return
+        }
+        towers[currentTower].heal(healTarget);
+        currentTower++;
+    }
+
+    for (;true;) {
+        if (currentTower >= towers.length){
+            return
+        }
+        if (towers[currentTower].store[RESOURCE_ENERGY] < 700){
+            currentTower++;
+            continue;
+        }
+        break;
+    }
+    if (towers.length - currentTower <= 0){
+        return
+    }
+    let repairTargets = getRepairTargets(roomName, towers.length - currentTower);
+    for (let repairTarget in repairTargets) {
+        if (currentTower >= towers.length){
+            return
+        }
+        let target = repairTargets[repairTarget]
+        towers[currentTower].repair(target);
+        currentTower++;
+    }
+
 }
 
 module.exports = towerManager;

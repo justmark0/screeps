@@ -3,13 +3,19 @@ const {
     minerData
 } = require('config')
 
+function isNearToCreep(creep_pos, pos){
+    return (Math.abs(creep_pos.x - pos.x) + Math.abs(creep_pos.y - pos.y)) <= 5;
+}
+
 function getStoreTargets(source_pos){
     let nearestLink = source_pos.findClosestByPath(FIND_MY_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_LINK && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
     if (nearestLink !== null) {
+        if (isNearToCreep(source_pos, nearestLink.pos)){
             return nearestLink
         }
+    }
     let nearestContainer = source_pos.findClosestByPath(FIND_STRUCTURES, {
         filter: (s) => s.store !== undefined && s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
@@ -67,18 +73,18 @@ let roleMiner = {
             creep.moveTo(Game.getObjectById(creep.memory.mineTarget).pos, {visualizePathStyle: {stroke: '#cef2db'}});
         }
         else {
-            let creepLinkID = Game.getObjectById(minerData[creep.room.name][creep.memory.mineTarget])
-            if (creepLinkID !== null) {
-                if (creepLinkID[RESOURCE_ENERGY] > 700) {
+            let creepLink = Game.getObjectById(minerData[creep.room.name][creep.memory.mineTarget])
+            if (creepLink !== null) {
+                if (creepLink[RESOURCE_ENERGY] > 700) {
                     let storageLink = Game.getObjectById(minerData[creep.room.name]['storageLinkID'])
                     if (storageLink !== null) {
-                        let res = creepLinkID.transferEnergy(storageLink)
+                        let res = creepLink.transferEnergy(storageLink)
                         if (res === OK) {
                             return;
                         }
                         print('miner: error transfer energy in links', res)
-                    }else { print('miner: no storageLinkID in config', creep.room.name, creep.memory.mineTarget);}
-                }
+                    }else { print('miner: could not get creepLink by id in config', creep.room.name, creep.memory.mineTarget);}
+                }else { print('miner: no storageLinkID in config', creep.room.name, creep.memory.mineTarget);}
             } else {print('miner: no linkID in config', creep.room.name, creep.memory.mineTarget);}
 
             let storeTarget = getStoreTargets(creep.pos)
@@ -87,12 +93,12 @@ let roleMiner = {
                 creep.drop(RESOURCE_ENERGY);
                 return;
             }
-            if(creep.transfer(storeTarget, RESOURCE_ENERGY) !== OK){
-                creep.drop(RESOURCE_ENERGY);
+            let res = creep.transfer(storeTarget, RESOURCE_ENERGY)
+            if(res === OK){
                 return;
-            }
+            } else {creep.drop(RESOURCE_ENERGY);print('miner: error transfer energy to source', res, creep.name, storeTarget);}
             if (Math.abs(creep.pos.x - storeTarget.pos.x) + Math.abs(creep.pos.y - storeTarget.pos.y) > 5) {
-                print('miner: storage too far away ', creep.pos, storeTarget.pos, JSON.stringify(storeTarget))
+                // print('miner: storage too far away ', creep.pos, storeTarget.pos, JSON.stringify(storeTarget))
                 creep.drop(RESOURCE_ENERGY);
                 return;
             }

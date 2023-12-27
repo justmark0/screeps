@@ -1,21 +1,21 @@
 let manualRoles = {
     "miner": 2,
     "spawnHelper": 0,
-    "updater":  3,
+    "updater":  1,
     "towerWorker": 0,
-    "builder": 0,
+    "builder": 2,
     "helper": 0,
-    "worker": 1,
+    "worker": 2,
 }
 let enableManualRoles = true;
 
 module.exports = {
-    roomNames : ["sim",],
+    roomNames : ["E56S7",],
     minerData: {
-        "sim": {// sourceID = linkID
-            "storageLinkID": "648a0397012a5b09da85271a",
-            "35ecdf157fc124ba2fe57e55": "1e00603534a2540b01befd14",
-            "5f2fbc22c2b81b1d1f77100e": "f23cabb6735bb23f285ca269",
+        "E56S7": {// sourceID = linkID
+            "storageLinkID": "658400ee40e9513aac9d6f06",
+            "5bbcb06c9099fc012e63c259": "6583e59886ac8f4e61c82460",
+            "5bbcb06c9099fc012e63c257": "",
         },
     },
     playersNotAttack: ['StiveMan'],
