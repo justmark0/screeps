@@ -32,12 +32,15 @@ let roleRaiderMiner = {
         }
 
         if(creep.memory.mine) {
-            print('mineFlag', (minerRaiderData[creep.memory.mineFlag]['sourceID']))
             let target = Game.getObjectById(minerRaiderData[creep.memory.mineFlag]['sourceID'])
             let res = creep.harvest(target);
-            if(res !== OK){print('minerRaider: error harvesting', res)}
+            if(res !== OK && res !== ERR_NOT_ENOUGH_ENERGY){print('minerRaider: error harvesting', res)}
         }
         else {
+            let res = tryToRepairContainer(creep);
+            if (res !== null) {
+                return;
+            }
             let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.store !== undefined && s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
             });
@@ -46,12 +49,24 @@ let roleRaiderMiner = {
                 creep.drop(RESOURCE_ENERGY);
                 return;
             }
-            let res = creep.transfer(target, RESOURCE_ENERGY);
+            res = creep.transfer(target, RESOURCE_ENERGY);
             if (res === OK) {return;}
             print('miner: error transfer energy to container', res)
             creep.drop(RESOURCE_ENERGY);
         }
     },
 };
+
+function tryToRepairContainer(creep){
+    let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.store !== undefined && s.structureType === STRUCTURE_CONTAINER && (s.hits + 1000) < s.hitsMax
+    });
+if (target === null) {
+        return null;
+    }
+    let res = creep.repair(target);
+    if (res === OK) {return 1;} // busy
+    return null;
+}
 
 module.exports = roleRaiderMiner;

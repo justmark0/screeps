@@ -44,7 +44,14 @@ let roleChargerMiner = {
             creep.say('🆘');
             return;
         }
-        creep.say('wait ene:(')
+        let source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+        if(creep.harvest(source) === OK){return;}
+        if (source === null) {
+            print('charger', creep.name, ': no source')
+            creep.say('1🆘');
+            return;
+        }
+        creep.moveTo(source.pos);
     },
 };
 

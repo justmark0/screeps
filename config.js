@@ -8,10 +8,6 @@ let manualRoles = {
         "helper": 0,
         "claimer": 0,
         "spawnHelper": 0,
-        "attacker": 0,
-        "healer": 0,
-        "raiderMiner": 0,
-        "raiderCarrier": 0,
     },
     "E57S5": {
         "miner": 1,
@@ -45,6 +41,7 @@ module.exports = {
     },
     minerRaiderData: {
         "mine1": {"sourceID": "5bbcb0599099fc012e63c021", "sourceRoom": new RoomPosition(25,25,'E55S7'), "returnRoomPos": new RoomPosition(25,25,'E56S7')},
+        "mine2": {"sourceID": "5bbcb06c9099fc012e63c25b", "sourceRoom": new RoomPosition(25,25,'E56S8'), "returnRoomPos": new RoomPosition(25,25,'E56S7')},
     },
     spawns: {
         "E56S7": {"norm": ["Spawn1", ""], "power": ""},

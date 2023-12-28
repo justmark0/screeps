@@ -42,12 +42,12 @@ var roleRaider = {
                         return;
                     }
                 }
-                require('role.charger').goToTarget(creep, targets);
+                // require('role.chargerMiner').goToTarget(creep, targets);
             }
         }
         else {
             if(creep.room.name !== roomName){
-                require('role.charger').run(creep);
+                require('role.chargerMiner').run(creep);
             }else {
                 // let flag = Game.flags['RaidPoint1']
                 // creep.moveTo(flag.pos);

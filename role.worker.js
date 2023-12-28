@@ -85,7 +85,7 @@ let roleWorker = {
             print('worker', creep.name, ': error share energy', res)
         }
         else {
-            require('role.charger').run(creep);
+            require('role.chargerMiner').run(creep);
         }
     },
 };

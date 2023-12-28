@@ -4,7 +4,7 @@ let towerManager = require('manager.tower');
 
 
 module.exports.loop = function () {
-    print('----------------------')
+    print('========================================')
     creepManager()
     towerManager()
 }

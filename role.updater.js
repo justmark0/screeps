@@ -18,7 +18,7 @@ let roleUpdater = {
             }
         }
         else {
-            require('role.charger').run(creep);
+            require('role.chargerMiner').run(creep);
         }
     },
 };

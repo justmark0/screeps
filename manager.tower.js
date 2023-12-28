@@ -69,7 +69,7 @@ function roomTowerManager(roomName){
             return
         }
         let target = towerTargets[towerTarget]
-        print('ATACKK', target)
+        // print('ATACKK', target)
         towers[currentTower].attack(target);
         currentTower++;
     }

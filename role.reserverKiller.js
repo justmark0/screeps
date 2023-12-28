@@ -10,15 +10,16 @@ let roleAttacker = {
         }
         // let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         let target = Game.getObjectById('658d9b99a8f660596d585e1a');
-        // print('attacker: target', target)
+        // print('reserver Killer: target', target)
         if (target !== null) {
-            let res = creep.rangedAttack(target);
+            let res = attackController(creep.room.controller);
+            // print('attacker: attack on', target)
             if (res !== ERR_NOT_IN_RANGE && res !== OK) {
                 print('attacker: error attacking', res)
             }
         }
         let flag = Game.flags[creep.memory.attackFlag]
-        creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+        creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ff0d0d'}});
     },
 };
 
