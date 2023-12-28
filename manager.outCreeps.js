@@ -6,9 +6,31 @@ let print = console.log;
 // Allows to easy create creeps for out of Room things. You have time to disable it before it will be spawned.
 let createNotRoomCreeps = {
     run: function() {
-        // createOutCreep("E56S7", "raiderMiner", {mineFlag: 'mine1'}, 'pervinah')
+        // deleteAllOutCreeps();
+        createMiner1Creeps();
+        // createE56S7AttackGroup();
     },
 };
+
+
+function gameHasCreep(nameCreep){
+    let hasCreep = false;
+    for(let name in Memory.creeps) {
+        let creep = Game.creeps[name];
+        if (creep.memory.name === nameCreep){
+            hasCreep = true;
+        }
+    }
+    return false
+}
+
+function deleteAllOutCreeps(){
+    for(let roomName in Memory.outCreeps) {
+        for(let name in Memory.outCreeps[roomName]) {
+           Memory.outCreeps[roomName][name] = null;
+        }
+    }
+}
 
 // if (role === 'claimer'){
 //     // memory['target'] = 'E57S5'
@@ -38,8 +60,56 @@ function createOutCreep(roomName, role, memory, idempotency) { // TODO maybe add
 
     Memory.outCreeps[roomName][name] = {
         role: role,
-        memory: memory
+        memory: memory,
     }
 }
 
 module.exports = createNotRoomCreeps;
+
+
+function createMiner1Creeps(){
+    if (!gameHasCreep('kapalka')){
+        createOutCreep(
+            "E56S7",
+            "raiderMiner",
+            {mineFlag: 'mine1',  role: 'raiderMiner', alreadyAtSource: false},
+            'kapalka'
+        )
+    }
+
+    if (!gameHasCreep('nasilnik')){
+        createOutCreep(
+            "E56S7",
+            "raiderMiner",
+            {mineFlag: 'mine1',  role: 'raiderCarrier'},
+            'nasilnik'
+        )
+    }
+}
+
+function createE56S7AttackGroup(){
+    if (!gameHasCreep('ubivalka047')){
+        // createOutCreep(
+        //     "E56S7",
+        //     "raiderMiner",
+        //     {mineFlag: 'mine1',  role: 'raiderMiner', alreadyAtSource: false},
+        //     'ubivalka047'
+        // )
+    }
+
+    if (!gameHasCreep('lechilka047')) {
+        // createOutCreep(
+        //     "E56S7",
+        //     "raiderMiner",
+        //     {mineFlag: 'mine1',  role: 'raiderCarrier'},
+        //     'lechilka047'
+        // )
+    }
+}
+
+
+
+
+
+
+

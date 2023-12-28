@@ -5,6 +5,7 @@ let print = console.log;
 // DEFINE mineFlag in memory on birth
 let roleRaiderCarrier = {
     run: function(creep) {
+
         if (creep.memory.goForEnergy === undefined) {
             creep.memory.goForEnergy = true;
         }
@@ -24,12 +25,12 @@ let roleRaiderCarrier = {
             require('role.charger').run(creep);
         }
         else {
-            if (creep.pos.room.name !== minerRaiderData[creep.memory.mineFlag]['returnRoomPos']) {
+            if (creep.pos.roomName !== minerRaiderData[creep.memory.mineFlag]['returnRoomPos'].roomName) {
                 creep.moveTo( minerRaiderData[creep.memory.mineFlag]['returnRoomPos'], {visualizePathStyle: {stroke: '#ffffff'}});
                 return;
             }
 
-            let target = source_pos.findClosestByPath(FIND_STRUCTURES, {
+            let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.store !== undefined && (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
             });
             if (target === null) {

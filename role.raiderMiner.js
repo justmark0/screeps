@@ -34,13 +34,15 @@ let roleRaiderMiner = {
         if(creep.memory.mine) {
             print('mineFlag', (minerRaiderData[creep.memory.mineFlag]['sourceID']))
             let target = Game.getObjectById(minerRaiderData[creep.memory.mineFlag]['sourceID'])
-            if(creep.harvest(target) !== OK){print('minerRaider: error harvesting', res)}
+            let res = creep.harvest(target);
+            if(res !== OK){print('minerRaider: error harvesting', res)}
         }
         else {
-            let target = source_pos.findClosestByPath(FIND_STRUCTURES, {
+            let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.store !== undefined && s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
             });
-            if (nearestContainer === null) {
+            if (target === null) {
+                creep.say('nu i pohui');
                 creep.drop(RESOURCE_ENERGY);
                 return;
             }
