@@ -22,8 +22,10 @@ let roleRaiderCarrier = {
                 creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 return;
             }
-            require('role.charger').run(creep);
-            creep.moveTo(new RoomPosition(flag.pos.x-1,flag.pos.y-1, flag.pos.roomName) )
+            let moved = require('role.charger').run(creep);
+            if (moved === 0  || moved === undefined){
+                creep.moveTo(new RoomPosition(flag.pos.x-1,flag.pos.y-1, flag.pos.roomName) )
+            }
         }
         else {
             if (creep.pos.roomName !== minerRaiderData[creep.memory.mineFlag]['returnRoomPos'].roomName) {

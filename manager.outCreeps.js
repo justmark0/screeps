@@ -4,28 +4,29 @@
 let print = console.log;
 
 // Allows to easy create creeps for out of Room things. You have time to disable it before it will be spawned.
-let createNotRoomCreeps = {
-    run: function() {
+function createNotRoomCreepsLocal() {
         // deleteAllOutCreeps();
 
         createMiner1Creeps();
+        createReserver('reserv_ochka', 'E55S7');
         createMiner2Creeps();
+        createReserver('reserv_ochka1', 'E56S8');
 
         createBuildCreepInMainRoom('stroilka', 'build1');
         createBuildCreepInMainRoom('stroilka0', 'build1');
         createBuildCreepInMainRoom('stroilka1', 'build1');
+        createBuildCreepInMainRoom('stroilka2', 'build1');
+        createBuildCreepInMainRoom('stroilka3', 'build1');
+        createBuildCreepInMainRoom('stroilka4', 'build1');
 
-
-        // createReserverKiller();
+        // createReserverKillerLocal('E55S7');
 
         // createAttackGroup1();
 
         // createExplorer();
 
         // createClaimer();
-    },
-};
-
+}
 
 function gameHasCreep(nameCreep){
     let hasCreep = false;
@@ -78,7 +79,10 @@ function createOutCreep(roomName, role, memory, idempotency) { // TODO maybe add
     }
 }
 
-module.exports = createNotRoomCreeps;
+module.exports = {
+    createReserverKiller: createReserverKillerLocal,
+    createNotRoomCreeps: createNotRoomCreepsLocal,
+};
 
 
 function createMiner1Creeps(){
@@ -126,6 +130,16 @@ function createBuildCreepInMainRoom(name, flag){
     }
 }
 
+function createReserver(name, roomName){
+    if (!gameHasCreep(name)){
+        createOutCreep(
+            "E56S7",
+            "reserver",
+            {role: 'reserver', roomName: roomName},
+            name
+        )
+    }
+}
 
 function createClaimer(){
     if (!gameHasCreep('zahvat_pizdi')){
@@ -148,13 +162,12 @@ function createExplorer(){
         )
     }
 }
-
-function createReserverKiller(){
+function createReserverKillerLocal(attackRoom){
     if (!gameHasCreep('ne_budet_tut_invader-ov')){
         createOutCreep(
             "E56S7",
             "reserverKiller",
-            {role: 'reserverKiller', attackFlag: 'reserverKiller'},
+            {role: 'reserverKiller', attackRoom: attackRoom},
             'ne_budet_tut_invader-ov'
         )
     }

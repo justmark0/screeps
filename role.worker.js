@@ -49,24 +49,24 @@ let roleWorker = {
 
             if ((target !== null && target.structureType === STRUCTURE_TOWER) || (target === null) ) {
                 // no structures or only towers left, try to build
-                let targetBuild = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-                if (targetBuild !== null) {
-                    // there is something to build. build it
-                    let res = creep.build(targetBuild);
-                    if(res === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targetBuild, {visualizePathStyle: {stroke: '#ffffff'}});
-                        return
-                    }
-                    if (res === OK) {
-                        return;
-                    }
-                    if (res !== ERR_NO_BODYPART){
-                        print('worker: error building', res)
-                        return;
-                    } else {
-                        print('worker: could not build because no work body part')
-                    }
-                }
+                // let targetBuild = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                // if (targetBuild !== null) {
+                //     // there is something to build. build it
+                //     let res = creep.build(targetBuild);
+                //     if(res === ERR_NOT_IN_RANGE) {
+                //         creep.moveTo(targetBuild, {visualizePathStyle: {stroke: '#ffffff'}});
+                //         return
+                //     }
+                //     if (res === OK) {
+                //         return;
+                //     }
+                //     if (res !== ERR_NO_BODYPART){
+                //         print('worker: error building', res)
+                //         return;
+                //     } else {
+                //         print('worker: could not build because no work body part')
+                //     }
+                // }
                 if (target === null) {
                     // no structures to fill
                     creep.say('no work🥺️️️️️️');

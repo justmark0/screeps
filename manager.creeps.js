@@ -14,15 +14,17 @@ let cooldown = 20
 let freezeCreationOfOutCreeps = false;
 // let rolesToChange = ['miner', 'raider', 'helper', 'updater', 'claimer', 'attacker', 'healer']
 let recommendedRolesCost = {
-    "miner": 500,
+    "miner": 750,
     "updater": 700,
     "claimer": 800,
     "attacker": 1400,
-    "healer":1500,
-    "worker": 300,
+    "healer": 1500,
+    "worker": 500,
     "raiderCarrier": 1000,
-    "raiderMiner": 600,
-    "raiderBuilder": 700,
+    "raiderMiner": 900,
+    "raiderBuilder": 1000,
+    "reserverKiller": 1900,
+    "reserver": 1200,
 }
 
 // One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
@@ -33,10 +35,11 @@ function creepManager() {
         print('testFunc: ' + error.message);
     }
     deleteDeadCreeps()
-    require('manager.outCreeps').run();
+    require('manager.outCreeps').createNotRoomCreeps();
     setClaimerRoomTarget("", "E56S7")
     for (let roomName of roomNames) {
         print('-------------roomName:', roomName)
+        buildDefendersIfNeeded(roomName)
         let roomCreeps = []
         for (let creepName in Game.creeps) {
             let creep = Game.creeps[creepName];
@@ -129,13 +132,25 @@ function testFunc() {
 
     // Memory.outCreeps["E56S7"]['ne_budet_tut_invader-ov'] = null;
 
+    // Game.creeps['ne_budet_tut_invader-ov'].memory.attackRoom = 'E55S7';
 
-
+    // Game.creeps['reserv_ochka'].memory.roomName = 'E55S7';
 
     // Memory.outCreeps['E56S7']['pervinahCarry']['busy'] = true;
     // let pos = RoomPosition(25,25,'E56S7');
     // Memory.lastSpawn = {"E56S7": Game.time}
     // print(JSON.stringify(Game));
+}
+
+function buildDefendersIfNeeded(roomName){
+    let invaderCore =  Game.rooms[roomName].find(FIND_HOSTILE_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_INVADER_CORE
+    });
+    if (invaderCore.length === 0){
+        return;
+    }
+    require('manager.outCreeps').createReserverKiller(roomName);
+    print("FOUND INVADER CORE IN ROOM. spawning defence...", roomName)
 }
 
 function deleteDeadCreeps(){
@@ -379,12 +394,16 @@ function getBodyByRole(role, availableEnergy, roomRoles) {
         let maxBody =  [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL]
         return getMaxParams(maxBody, availableEnergy)
     }
-    if (role === 'raiderCarrier'){
-        let maxBody =  [MOVE, MOVE, CARRY, CARRY, MOVE, MOVE, CARRY, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]
+    if (role === 'raiderMiner'){
+        let maxBody =  [MOVE, MOVE, MOVE, MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, CARRY]
         return getMaxParams(maxBody, availableEnergy)
     }
-    if (role === 'raiderMiner'){
-        let maxBody =  [MOVE, MOVE, MOVE, MOVE, CARRY, WORK, WORK, WORK, CARRY]
+    if (role === 'raiderCarrier'){
+        let maxBody =  [MOVE, MOVE, CARRY, CARRY, MOVE, MOVE, CARRY, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'reserver'){
+        let maxBody =  [MOVE, CLAIM, CLAIM]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'raiderBuilder'){
@@ -446,6 +465,8 @@ function runCreepProgram(creepProfession, creep){
             return require('role.updater').run(creep);
         case "worker":
             return require('role.worker').run(creep);
+        case "reserverKiller":
+            return require('role.reserverKiller').run(creep);
         case "helper":
             return require('role.helper').run(creep);
         case "raider":
@@ -456,16 +477,16 @@ function runCreepProgram(creepProfession, creep){
             return require('role.attacker').run(creep);
         case "healer":
             return require('role.healer').run(creep);
-        case "raiderCarrier":
-            return require('role.raiderCarrier').run(creep);
         case "raiderMiner":
             return require('role.raiderMiner').run(creep);
+        case "raiderCarrier":
+            return require('role.raiderCarrier').run(creep);
         case "raiderBuilder":
             return require('role.raiderBuilder').run(creep);
+        case "reserver":
+            return require('role.reserver').run(creep);
         case "explorer":
             return require('role.explorer').run(creep);
-        case "reserverKiller":
-            return require('role.reserverKiller').run(creep);
     }
 }
 

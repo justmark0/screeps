@@ -40,7 +40,7 @@ let roleChargerMiner = {
             if (res === OK) {
                 return;
             }
-            print('charger: error picking up energy', res)
+            print('minerCharger: error picking up energy', res, creep.name)
             creep.say('🆘');
             return;
         }

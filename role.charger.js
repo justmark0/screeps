@@ -10,6 +10,7 @@ function addToArrayNearestIfExists(arr, pos, find_type) {
     return arr;
 }
 
+// 1 moved. 0 not moved
 let roleChargerMiner = {
     run: function(creep) {
         let chargeSources = [];
@@ -28,21 +29,21 @@ let roleChargerMiner = {
             let res = creep.pickup(nearestSource);
             if (res === ERR_NOT_IN_RANGE) {
                 creep.moveTo(nearestSource.pos, {visualizePathStyle: {stroke: '#36e772'}});
-                return;
+                return 1;
             }
             if (res === ERR_INVALID_TARGET){
                 res = creep.withdraw(nearestSource, RESOURCE_ENERGY);
                 if (res === ERR_NOT_IN_RANGE) {
                     creep.moveTo(nearestSource.pos, {visualizePathStyle: {stroke: '#36e772'}});
-                    return;
+                    return 1;
                 }
             }
             if (res === OK) {
-                return;
+                return 0;
             }
             print('charger: error picking up energy', res)
             creep.say('🆘');
-            return;
+            return 0;
         }
         creep.say('wait ene:(')
     },

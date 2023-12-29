@@ -38,24 +38,27 @@ let roleRaiderBuilder = {
         }
 
         if(creep.memory.build) {
-            let targetBuild = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-            if (targetBuild === null) {
-                // if no structures to build set isRightRoom to false
-                creep.memory.isRightRoom = false;
-                creep.say('no build');
-                return;
+            if(creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#69ec3c'}});
             }
-
-            // there is something to build. build it
-            let res = creep.build(targetBuild);
-            if(res === ERR_NOT_IN_RANGE) {
-                creep.moveTo(targetBuild, {visualizePathStyle: {stroke: '#ffffff'}});
-                return
-            }
-            if (res === OK) {
-                return;
-            }
-            print('worker: error building', res)
+            // let targetBuild = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+            // if (targetBuild === null) {
+            //     // if no structures to build set isRightRoom to false
+            //     creep.memory.isRightRoom = false;
+            //     creep.say('no build');
+            //     return;
+            // }
+            //
+            // // there is something to build. build it
+            // let res = creep.build(targetBuild);
+            // if(res === ERR_NOT_IN_RANGE) {
+            //     creep.moveTo(targetBuild, {visualizePathStyle: {stroke: '#ffffff'}});
+            //     return
+            // }
+            // if (res === OK) {
+            //     return;
+            // }
+            // print('worker: error building', res)
         }
         else {
             let flag = Game.flags[creep.memory.buildFlag]

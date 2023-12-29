@@ -34,7 +34,19 @@ let roleRaiderMiner = {
         if(creep.memory.mine) {
             let target = Game.getObjectById(minerRaiderData[creep.memory.mineFlag]['sourceID'])
             let res = creep.harvest(target);
-            if(res !== OK && res !== ERR_NOT_ENOUGH_ENERGY){print('minerRaider: error harvesting', res)}
+            if(res !== OK && res !== ERR_NOT_ENOUGH_ENERGY && res !== ERR_NOT_OWNER){print('minerRaider: error harvesting', res)}
+
+            if (res === -1){
+                let invaderCore = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+                    filter: (s) => s.structureType === STRUCTURE_INVADER_CORE
+                });
+                if (invaderCore !== null) {
+                    require('manager.outCreeps').createReserverKiller(creep.room.name);
+                    creep.say('help coming')
+                    return;
+                }
+                print('minerRaider: no invader core in room from memory but err is ERR_NOT_OWNER.', creep.name)
+            }
         }
         else {
             let res = tryToRepairContainer(creep);
