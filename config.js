@@ -10,11 +10,11 @@ let manualRoles = {
         "spawnHelper": 0,
     },
     "E57S5": {
-        "miner": 1,
-        "worker": 1,
-        "updater":  0,
+        "miner": 2,
+        "worker": 2,
+        "updater":  1,
         "towerWorker": 0,
-        "builder": 0,
+        "builder": 1,
         "helper": 0,
         "claimer": 0,
         "spawnHelper": 0,
@@ -26,7 +26,7 @@ let enableManualRoles = true;
 let maxAmountOfRaiderCarriersOnOne = 2;
 
 module.exports = {
-    roomNames : ["E56S7",],
+    roomNames : ["E56S7", "E57S5"],
     minerData: {
         "E56S7": {// sourceID = linkID
             "storageLinkID": "658400ee40e9513aac9d6f06",

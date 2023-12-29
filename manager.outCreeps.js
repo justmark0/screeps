@@ -17,7 +17,7 @@ function createNotRoomCreepsLocal() {
         createBuildCreepInMainRoom('stroilka1', 'build1');
         createBuildCreepInMainRoom('stroilka2', 'build1');
         createBuildCreepInMainRoom('stroilka3', 'build1');
-        createBuildCreepInMainRoom('stroilka4', 'build1');
+        // createBuildCreepInMainRoom('stroilka4', 'build1');
 
         // createReserverKillerLocal('E55S7');
 
@@ -26,6 +26,8 @@ function createNotRoomCreepsLocal() {
         // createExplorer();
 
         // createClaimer();
+
+        // createAttackSquad1();
 }
 
 function gameHasCreep(nameCreep){
@@ -82,6 +84,7 @@ function createOutCreep(roomName, role, memory, idempotency) { // TODO maybe add
 module.exports = {
     createReserverKiller: createReserverKillerLocal,
     createNotRoomCreeps: createNotRoomCreepsLocal,
+    createSmallInvaderKiller: createSmallInvaderKillerLocal,
 };
 
 
@@ -100,6 +103,11 @@ function createMiner1Creeps(){
         createOutCreep("E56S7", role,
             {mineFlag: 'mine1',  role: role}, 'nasilnik')
     }
+    if (!gameHasCreep('nasilnik1.1')){
+        let role = 'raiderCarrier'
+        createOutCreep("E56S7", role,
+            {mineFlag: 'mine1',  role: role}, 'nasilnik1.1')
+    }
 }
 
 function createMiner2Creeps(){
@@ -116,6 +124,11 @@ function createMiner2Creeps(){
         let role = 'raiderCarrier'
         createOutCreep("E56S7", role,
             {mineFlag: 'mine2',  role: role}, 'nasilnik2')
+    }
+    if (!gameHasCreep('nasilnik2.1')){
+        let role = 'raiderCarrier'
+        createOutCreep("E56S7", role,
+            {mineFlag: 'mine2',  role: role}, 'nasilnik2.1')
     }
 }
 
@@ -173,6 +186,17 @@ function createReserverKillerLocal(attackRoom){
     }
 }
 
+function createSmallInvaderKillerLocal(attackRoom){
+    if (!gameHasCreep('umri_100kshnik')){
+        createOutCreep(
+            "E56S7",
+            "smallInvaderKiller",
+            {role: 'smallInvaderKiller', attackRoom: attackRoom},
+            'umri_100kshnik'
+        )
+    }
+}
+
 function createAttackGroup1(){
     if (!gameHasCreep('ubivalka047')){
         createOutCreep(
@@ -194,7 +218,40 @@ function createAttackGroup1(){
 }
 
 
-
+function createAttackSquad1(){
+    if (!gameHasCreep('s1a')){
+        createOutCreep(
+            "E56S7",
+            "squad1Attacker_attacker",
+            {role: 'squad1Attacker_attacker'},
+            's1a'
+        )
+    }
+    if (!gameHasCreep('s1h1')){
+        createOutCreep(
+            "E56S7",
+            "squad1Attacker_healer",
+            {role: 'squad1Attacker_healer'},
+            's1h1'
+        )
+    }
+    if (!gameHasCreep('s1h2')){
+        createOutCreep(
+            "E56S7",
+            "squad1Attacker_healer",
+            {role: 'squad1Attacker_healer'},
+            's1h2'
+        )
+    }
+    if (!gameHasCreep('s1h3')){
+        createOutCreep(
+            "E56S7",
+            "squad1Attacker_healer",
+            {role: 'squad1Attacker_healer'},
+            's1h3'
+        )
+    }
+}
 
 
 

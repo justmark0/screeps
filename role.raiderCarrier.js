@@ -24,7 +24,7 @@ let roleRaiderCarrier = {
             }
             let moved = require('role.charger').run(creep);
             if (moved === 0  || moved === undefined){
-                creep.moveTo(new RoomPosition(flag.pos.x-1,flag.pos.y-1, flag.pos.roomName) )
+                creep.moveTo(new RoomPosition(flag.pos.x-2,flag.pos.y-2, flag.pos.roomName) )
             }
         }
         else {

@@ -7,6 +7,25 @@ let roleRaiderMiner = {
         if (creep.memory.alreadyAtSource === undefined) {
             creep.memory.alreadyAtSource = false;
         }
+
+        let invaderCore = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
+            filter: (s) => s.structureType === STRUCTURE_INVADER_CORE
+        });
+        if (invaderCore !== null) {
+            require('manager.outCreeps').createReserverKiller(creep.room.name);
+            creep.say('help coming')
+        }
+
+        let otherCreeps =  Game.rooms[creep.room.name].find(FIND_HOSTILE_CREEPS);
+        if (otherCreeps.length > 0 && creep.room.name !== 'E56S7') {
+            require('manager.outCreeps').createSmallInvaderKiller(creep.room.name);
+            let flag = Game.flags[creep.memory.mineFlag]
+            creep.moveTo(new RoomPosition(flag.pos.x - 5, flag.pos.y - 5, creep.room.name))
+            creep.memory.alreadyAtSource = false;
+            creep.say('help coming')
+            return;
+        }
+
         if (creep.memory.alreadyAtSource === false) {
             if (creep.memory.mineFlag === undefined) {
                 print('minerRaider: no mine in memory')
@@ -37,14 +56,6 @@ let roleRaiderMiner = {
             if(res !== OK && res !== ERR_NOT_ENOUGH_ENERGY && res !== ERR_NOT_OWNER){print('minerRaider: error harvesting', res)}
 
             if (res === -1){
-                let invaderCore = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
-                    filter: (s) => s.structureType === STRUCTURE_INVADER_CORE
-                });
-                if (invaderCore !== null) {
-                    require('manager.outCreeps').createReserverKiller(creep.room.name);
-                    creep.say('help coming')
-                    return;
-                }
                 print('minerRaider: no invader core in room from memory but err is ERR_NOT_OWNER.', creep.name)
             }
         }
