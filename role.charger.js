@@ -2,7 +2,7 @@ let print = console.log;
 
 function addToArrayNearestIfExists(arr, pos, find_type) {
     let nearestObject = pos.findClosestByPath(find_type, {
-        filter: (s) => (s.store !== undefined && s.store[RESOURCE_ENERGY] > 0) || (s.amount !== undefined && s.amount > 0) && s.pos.roomName === pos.roomName
+        filter: (s) => (s.store !== undefined && s.store[RESOURCE_ENERGY] > 0) || (s.amount !== undefined && s.amount > 0 && s.resourceType === RESOURCE_ENERGY) && s.pos.roomName === pos.roomName
     });
     if (nearestObject !== null) {
         arr.push(nearestObject);
@@ -12,13 +12,16 @@ function addToArrayNearestIfExists(arr, pos, find_type) {
 
 // 1 moved. 0 not moved
 let roleChargerMiner = {
-    run: function(creep) {
+    run: function(creep, minAmount, ableToTakeFromStorage) {
+        if (ableToTakeFromStorage === undefined){
+            ableToTakeFromStorage = true;
+        }
         let chargeSources = [];
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_TOMBSTONES);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_RUINS);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_DROPPED_RESOURCES);
         let nearestStorageOrContainer = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (s) => s.store !== undefined && s.store[RESOURCE_ENERGY] > 0 && ((s.structureType === STRUCTURE_STORAGE && s.my) || (s.structureType === STRUCTURE_LINK && s.my) || s.structureType === STRUCTURE_CONTAINER)
+            filter: (s) => s.store !== undefined && s.store[RESOURCE_ENERGY] > minAmount && ((s.structureType === STRUCTURE_STORAGE && s.my && ableToTakeFromStorage) || (s.structureType === STRUCTURE_LINK && s.my) || s.structureType === STRUCTURE_CONTAINER)
         });
         if (nearestStorageOrContainer !== null) {
             chargeSources.push(nearestStorageOrContainer);
@@ -46,6 +49,7 @@ let roleChargerMiner = {
             return 0;
         }
         creep.say('wait ene:(')
+        return 0;
     },
 };
 

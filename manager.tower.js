@@ -3,6 +3,13 @@ let roomNames = require('config').roomNames
 let playersNotAttack =  require('config').playersNotAttack
 
 function getRepairTargets(roomName, amountOfFreeTowers){
+    let damagedContainers = Game.rooms[roomName].find(FIND_STRUCTURES, {
+        filter: (structure) => structure.hits < 1000000 && structure.structureType === STRUCTURE_CONTAINER && structure.hitsMax !== structure.hits
+    });
+    if(damagedContainers.length !== 0){
+        return damagedContainers;
+    }
+
     let damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
         filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 1500000
     });
@@ -56,6 +63,7 @@ function roomTowerManager(roomName){
                 structure.store[RESOURCE_ENERGY] >= 10;
         }
     });
+    // print('roomName', roomName, towers)
     if (towers.length === 0){
         return
     }
@@ -89,6 +97,7 @@ function roomTowerManager(roomName){
     }
 
     let healTargets = getHealTargets(roomName, towers.length - currentTower);
+    // print('heal targets', JSON.stringify(healTargets))
     for (let healTarget in healTargets) {
         if (currentTower >= towers.length){
             return
@@ -112,12 +121,13 @@ function roomTowerManager(roomName){
         return
     }
     let repairTargets = getRepairTargets(roomName, towers.length - currentTower);
+    // print('reparTargets', repairTargets)
     for (let repairTarget in repairTargets) {
         if (currentTower >= towers.length){
-            return
+            continue
         }
-        let target = repairTargets[repairTarget]
-        towers[currentTower].repair(target);
+        // let target = repairTargets[repairTarget]
+        let res = towers[currentTower].repair(repairTargets[repairTarget]);
         currentTower++;
     }
 

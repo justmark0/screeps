@@ -3,6 +3,7 @@ let roleUpdater = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
+        creep.drop('L')
         if(creep.memory.work && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.work = false;
             creep.say('🔄 harvest');
@@ -18,7 +19,7 @@ let roleUpdater = {
             }
         }
         else {
-            require('role.chargerMiner').run(creep);
+            require('role.chargerMiner').run(creep, 0, true);
         }
     },
 };

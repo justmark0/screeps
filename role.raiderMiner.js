@@ -17,8 +17,8 @@ let roleRaiderMiner = {
         }
 
         let otherCreeps =  Game.rooms[creep.room.name].find(FIND_HOSTILE_CREEPS);
-        if (otherCreeps.length > 0 && creep.room.name !== 'E56S7') {
-            require('manager.outCreeps').createSmallInvaderKiller(creep.room.name);
+        if (otherCreeps.length > 0 && creep.room.name !== 'E56S7' && creep.room.name !== 'E57S5') {
+            require('manager.outCreeps').createSmallInvaderKiller(getRoomToCreateHelpFrom(creep.room.name), creep.room.name);
             let flag = Game.flags[creep.memory.mineFlag]
             creep.moveTo(new RoomPosition(flag.pos.x - 5, flag.pos.y - 5, creep.room.name))
             creep.memory.alreadyAtSource = false;
@@ -90,6 +90,13 @@ if (target === null) {
     let res = creep.repair(target);
     if (res === OK) {return 1;} // busy
     return null;
+}
+
+function getRoomToCreateHelpFrom(creepRoomName){
+    if (creepRoomName === 'E58S5'){
+        return 'E57S5';
+    }
+    return 'E56S7';
 }
 
 module.exports = roleRaiderMiner;

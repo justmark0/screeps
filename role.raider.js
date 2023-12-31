@@ -47,7 +47,7 @@ var roleRaider = {
         }
         else {
             if(creep.room.name !== roomName){
-                require('role.chargerMiner').run(creep);
+                require('role.chargerMiner').run(creep, 0, true);
             }else {
                 // let flag = Game.flags['RaidPoint1']
                 // creep.moveTo(flag.pos);

@@ -10,7 +10,7 @@ const {
     enableManualRoles,
     spawns,
 } = require('config');
-let cooldown = 5
+let cooldown = 1
 let freezeCreationOfOutCreeps = false;
 // let rolesToChange = ['miner', 'raider', 'helper', 'updater', 'claimer', 'attacker', 'healer']
 let recommendedRolesCost = {
@@ -26,6 +26,8 @@ let recommendedRolesCost = {
     "raiderBuilder": 1000,
     "reserverKiller": 1900,
     "reserver": 1300,
+    'courier': 1050,
+    'resourceMiner': 850,
     'smallInvaderKiller': 500,
     'squad1Attacker_attacker': 130,
     'squad1Attacker_healer': 300,
@@ -119,6 +121,10 @@ function creepManager() {
 
 // function to test some theories or check code.
 function testFunc() {
+    print('cpu', JSON.stringify(Game.cpu))
+    // Game.cpu.generatePixel()
+
+
     // Memory.outCreeps["E56S7"][ne_budet_tut_invader-ov']['createdAt'] = Game.time;
 
     // print(JSON.stringify(Game))
@@ -144,6 +150,11 @@ function testFunc() {
 
     // Game.creeps['reserv_ochka'].memory.roomName = 'E55S7';
 
+
+    // Game.creeps['54277646'].drop("L");
+
+
+    // Game.creeps['54269902'].memory.mine = true;
     // Memory.outCreeps['E56S7']['pervinahCarry']['busy'] = true;
     // let pos = RoomPosition(25,25,'E56S7');
     // Memory.lastSpawn = {"E56S7": Game.time}
@@ -327,6 +338,7 @@ function roleToCreateNext(rolesToCreate, roomRoles) {
         'attacker',
         'healer',
         'builder',
+        'resourceMiner',
         ]
     )
     for (let roleInt in rolesPosition) {
@@ -459,6 +471,14 @@ function getBodyByRole(role, availableEnergy, roomRoles) {
         let maxBody = [MOVE, HEAL]
         return getMaxParams(maxBody, availableEnergy)
     }
+    if (role === 'resourceMiner'){
+        let maxBody = [MOVE, MOVE, MOVE, CARRY, CARRY, WORK, WORK, WORK, WORK]
+        return getMaxParams(maxBody, availableEnergy)
+    }
+    if (role === 'courier'){
+        let maxBody = [MOVE, CARRY, CARRY, MOVE, CARRY, CARRY, MOVE, CARRY, CARRY, MOVE, CARRY, CARRY, MOVE, CARRY, CARRY, MOVE, CARRY, CARRY, MOVE, CARRY, CARRY]
+        return getMaxParams(maxBody, availableEnergy)
+    }
 
     return getMaxParams([MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, WORK], availableEnergy)
 }
@@ -485,16 +505,7 @@ function getMaxParams(params, availableEnergy){
     return resultParams
 }
 function getCreepName(role) {
-    if (role === 'miner'){
-        return 'miner' + Game.time
-    }
-    if (role === 'helper'){
-        return 'helper' + Game.time
-    }
-    if (role === 'attacker'){
-        return 'attacker' + Game.time
-    }
-    return Game.time
+    return role + Game.time
 }
 
 function runCreepProgram(creepProfession, creep){
@@ -537,6 +548,10 @@ function runCreepProgram(creepProfession, creep){
             return require('role.squad1AttackerAttacker').run(creep);
         case "squad1Attacker_healer":
             return require('role.squad1AttackerHealer').run(creep);
+        case "resourceMiner":
+            return require('role.resourceMiner').run(creep);
+        case "courier":
+            return require('role.courier').run(creep);
     }
 }
 

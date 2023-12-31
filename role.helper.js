@@ -30,7 +30,7 @@ var roleHelper = {
             creep.moveTo(flag.pos);
         }
         else {
-            require('role.chargerMiner').run(creep);
+            require('role.chargerMiner').run(creep, 0, true);
         }
     },
 };

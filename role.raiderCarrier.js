@@ -22,10 +22,10 @@ let roleRaiderCarrier = {
                 creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 return;
             }
-            let moved = require('role.charger').run(creep);
-            if (moved === 0  || moved === undefined){
-                creep.moveTo(new RoomPosition(flag.pos.x-2,flag.pos.y-2, flag.pos.roomName) )
-            }
+            require('role.charger').run(creep, 0, false);
+            // if (moved === 0  || moved === undefined){
+            //     creep.moveTo(new RoomPosition(flag.pos.x-2,flag.pos.y-2, flag.pos.roomName) )
+            // }
         }
         else {
             if (creep.pos.roomName !== minerRaiderData[creep.memory.mineFlag]['returnRoomPos'].roomName) {

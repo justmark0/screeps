@@ -46,6 +46,7 @@ let roleWorker = {
 
         if(creep.memory.work) {
             let target = getTarget(creep);
+            creep.memory.placedToStorage = false;
 
             if ((target !== null && target.structureType === STRUCTURE_TOWER) || (target === null) ) {
                 // check if towers need energy
@@ -74,7 +75,29 @@ let roleWorker = {
                     }
                 }
                 if (target === null) {
-                    // no structures to fill
+                    // no structures to fill, fill storage
+                //     let targetStorage = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                //         filter: (structure) => {
+                //             return (
+                //                     structure.structureType === STRUCTURE_STORAGE
+                //                 ) &&
+                //                 structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+                //
+                //     }});
+                //     print('worker', creep.name, ': targetStorage', targetStorage)
+                //     if (targetStorage !== null){
+                //         let res = creep.transfer(targetStorage, RESOURCE_ENERGY)
+                //         if (res === ERR_NOT_IN_RANGE){
+                //             creep.moveTo(targetStorage, {visualizePathStyle: {stroke: '#e1e1e1'}});
+                //             return;
+                //         }
+                //         if (res === OK) {
+                //             creep.memory.placedToStorage = true;
+                //             return;
+                //         }
+                //         print('worker', creep.name, ': error share energy with storage', res)
+                //         return;
+                //     }
                     creep.say('no work🥺️️️️️️');
                     return;
                 }
@@ -91,7 +114,10 @@ let roleWorker = {
             print('worker', creep.name, ': error share energy', res)
         }
         else {
-            require('role.chargerMiner').run(creep);
+            if (creep.memory.placedToStorage === undefined){
+                creep.memory.placedToStorage = false;
+            }
+            require('role.chargerMiner').run(creep, 200, !creep.memory.placedToStorage);
         }
     },
 };
@@ -101,7 +127,7 @@ function shareEnergyWithTowersIfNeeded(creep){
     // TODO i think this could be optimized
     let isTowersNeedToRepair = false;
     let damagedStructures = Game.rooms[creep.room.name].find(FIND_STRUCTURES, {
-        filter: (structure) => structure.hits < 4000 && structure.hitsMax > 4000
+        filter: (structure) => (structure.hits < 4000 && structure.structureType === STRUCTURE_ROAD) && ( structure.hits < 100000 && structure.hitsMax > 4000  && structure.structureType !== STRUCTURE_ROAD)
     });
     if(damagedStructures.length !== 0){
         isTowersNeedToRepair = true;
