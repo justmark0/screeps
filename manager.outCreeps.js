@@ -5,33 +5,83 @@ let print = console.log;
 
 // Allows to easy create creeps for out of Room things. You have time to disable it before it will be spawned.
 function createNotRoomCreepsLocal() {
-        // deleteAllOutCreeps();
+    // deleteAllOutCreeps();
 
-        createMiner1Creeps();
-        createReserver("E56S7", 'reserv_ochka', 'E55S7');
-        createMiner2Creeps();
-        createReserver("E56S7", 'reserv_ochka1', 'E56S8');
-        createMiner3Creeps();
-        createReserver('E57S5', 'reserv_ochka3', 'E58S5');
+    createMiner1Creeps();
+    createReserver("E56S7", 'reserv_ochka', 'E55S7');
+    createMiner2Creeps();
+    createReserver("E56S7", 'reserv_ochka1', 'E56S8');
+    createMiner3Creeps();
+    createReserver('E57S5', 'reserv_ochka3', 'E58S5');
+    // createReserver('E57S5', 'reserv_ochka4', 'E59S5');
+    createMiner4Creeps();
+    createReserver('E57S5', 'reserv_ochka4', 'E58S6');
 
-        createBuildCreepInMainRoom("E56S7", 'stroilka', 'build1');
-        createBuildCreepInMainRoom("E56S7", 'stroilka0', 'build1');
-        createBuildCreepInMainRoom("E56S7", 'stroilka1', 'build1');
-        createBuildCreepInMainRoom("E56S7", 'stroilka2', 'build1');
-        createBuildCreepInMainRoom("E56S7", 'stroilka3', 'build1');
-        createBuildCreepInMainRoom("E56S7", 'stroilka4', 'build1');
 
-        createCourier("E57S5", 'courier1');
+    createBuildCreepInMainRoom("E56S7", 'stroilka', 'build2');
+    createBuildCreepInMainRoom("E56S7", 'stroilka0', 'build2');
+    // createBuildCreepInMainRoom("E56S7", 'stroilka1', 'build2');
+    // createBuildCreepInMainRoom("E56S7", 'stroilka2', 'build2');
+    // createBuildCreepInMainRoom("E56S7", 'stroilka3', 'build2');
+    // createBuildCreepInMainRoom("E56S7", 'stroilka4', 'build2');
+    // createBuildCreepInMainRoom("E57S5", 'stroilka5', 'build3');
+
+
+    // createCourier("E57S5", 'courier1');
         createCourier("E57S5", 'courier2');
+    // createCourier("E56S7", 'courier3');
     // createBuildCreepInMainRoom("E57S5", 'stroilka5', 'build2');
 
-        // createReserverKillerLocal('E55S7');
+    // createReserverKillerLocal('E55S7');
 
-        // createExplorer();
+    // createExplorer('E57S5');
 
-        // createClaimer();
+    createCannonFodder('balast1');
 
-        // createAttackSquad1();
+    // createClaimer();
+
+    createAttackSquad1();
+
+    // createAttackGroup1();
+
+    createRaiderCourier('E56S7', 'raiderCourier1');
+    createRaiderCourier('E56S7', 'raiderCourier2');
+    createRaiderCourier('E56S7', 'raiderCourier3');
+    // createRaiderCourier('E56S7', 'raiderCourier4');
+
+
+    // if (!gameHasCreep('ubivalka0047')){
+    //     createOutCreep(
+    //         "E56S7",
+    //         "attacker",
+    //         {attackFlag: 'attack',  role: 'attacker'},
+    //         'ubivalka0047'
+    //     )
+    // }
+    // if (!gameHasCreep('ubivalka048')){
+    //     createOutCreep(
+    //         "E56S7",
+    //         "attacker",
+    //         {attackFlag: 'attack',  role: 'attacker'},
+    //         'ubivalka048'
+    //     )
+    // }
+    // if (!gameHasCreep('ubivalka01')){
+    //     createOutCreep(
+    //         "E56S7",
+    //         "attacker",
+    //         {attackFlag: 'attack',  role: 'attacker'},
+    //         'ubivalka01'
+    //     )
+    // }
+    // if (!gameHasCreep('ubivalka02')){
+    //     createOutCreep(
+    //         "E56S7",
+    //         "attacker",
+    //         {attackFlag: 'attack',  role: 'attacker'},
+    //         'ubivalka02'
+    //     )
+    // }
 }
 
 function gameHasCreep(nameCreep){
@@ -45,13 +95,7 @@ function gameHasCreep(nameCreep){
     return false
 }
 
-function deleteAllOutCreeps(){
-    for(let roomName in Memory.outCreeps) {
-        for(let name in Memory.outCreeps[roomName]) {
-           Memory.outCreeps[roomName][name] = null;
-        }
-    }
-}
+
 
 // if (role === 'claimer'){
 //     // memory['target'] = 'E57S5'
@@ -163,6 +207,33 @@ function createMiner3Creeps(){
     }
 }
 
+function createMiner4Creeps(){
+    if (!gameHasCreep('kapalka4')){
+        createOutCreep(
+            "E57S5",
+            "raiderMiner",
+            {mineFlag: 'mine4',  role: 'raiderMiner'},
+            'kapalka4'
+        )
+    }
+
+    if (!gameHasCreep('nasilnik4')){
+        let role = 'raiderCarrier'
+        createOutCreep("E57S5", role,
+            {mineFlag: 'mine4',  role: role}, 'nasilnik4')
+    }
+    if (!gameHasCreep('nasilnik4.1')){
+        let role = 'raiderCarrier'
+        createOutCreep("E57S5", role,
+            {mineFlag: 'mine4',  role: role}, 'nasilnik4.1')
+    }
+    if (!gameHasCreep('nasilnik4.2')){
+        let role = 'raiderCarrier'
+        createOutCreep("E57S5", role,
+            {mineFlag: 'mine4',  role: role}, 'nasilnik4.2')
+    }
+}
+
 function createBuildCreepInMainRoom(fromRoom, name, flag){
     if (!gameHasCreep(name)){
         createOutCreep(
@@ -196,6 +267,18 @@ function createCourier(fromRoomName, name){
     }
 }
 
+function createRaiderCourier(fromRoomName, name){
+    if (!gameHasCreep(name)){
+        createOutCreep(
+            fromRoomName,
+            "raiderCourier",
+            {role: 'raiderCourier', roomCreation: fromRoomName},
+            name
+        )
+    }
+}
+
+
 
 function createClaimer(){
     if (!gameHasCreep('zahvat_pizdi')){
@@ -208,16 +291,28 @@ function createClaimer(){
     }
 }
 
-function createExplorer(){
+function createExplorer(fromRoom){
     if (!gameHasCreep('hodilka')){
         createOutCreep(
-            "E56S7",
+            fromRoom,
             "explorer",
             {role: 'explorer'},
             'hodilka'
         )
     }
 }
+
+function createCannonFodder(name){
+    if (!gameHasCreep(name)){
+        createOutCreep(
+            "E56S7",
+            "cannonFodder",
+            {role: 'cannonFodder'},
+            name
+        )
+    }
+}
+
 function createReserverKillerLocal(attackRoom){
     if (!gameHasCreep('ne_budet_tut_invader-ov')){
         createOutCreep(
@@ -243,9 +338,9 @@ function createSmallInvaderKillerLocal(fromRoomName, attackRoom){
 function createAttackGroup1(){
     if (!gameHasCreep('ubivalka047')){
         createOutCreep(
-            "E56S7",
+            "E57S5",
             "attacker",
-            {attackFlag: 'attack',  role: 'attacker'},
+            {attackFlag: 'defend',  role: 'attacker'},
             'ubivalka047'
         )
     }
@@ -262,14 +357,14 @@ function createAttackGroup1(){
 
 
 function createAttackSquad1(){
-    if (!gameHasCreep('s1a')){
-        createOutCreep(
-            "E56S7",
-            "squad1Attacker_attacker",
-            {role: 'squad1Attacker_attacker'},
-            's1a'
-        )
-    }
+    // if (!gameHasCreep('s1a')){
+    //     createOutCreep(
+    //         "E56S7",
+    //         "squad1Attacker_attacker",
+    //         {role: 'squad1Attacker_attacker'},
+    //         's1a'
+    //     )
+    // }
     if (!gameHasCreep('s1h1')){
         createOutCreep(
             "E56S7",

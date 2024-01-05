@@ -25,7 +25,7 @@ let roleReserver = {
                     creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
                     return;
                 }
-                if (res === OK) {
+                if (res === OK || res === ERR_TIRED) {
                     return;
                 }
                 print('reserver: error attackController', res)

@@ -10,18 +10,30 @@ let roleExplorer = {
         }
         // TODO add destination in memory
         let flag = Game.flags['explore']
-        if (creep.room.name === flag.pos.roomName){
-            let res = creep.signController(creep.room.controller, 'sosiski 😋🍽');
-            if (res === ERR_NOT_IN_RANGE){
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
-                return;
-            }
-            if (res === OK) {
-                return;
-            }
-            print('explorer: error sign', res)
-        }
+        // if (creep.room.name === flag.pos.roomName){
+        //     let res = creep.signController(creep.room.controller, 'sosiski 😋🍽');
+        //     if (res === ERR_NOT_IN_RANGE){
+        //         creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+        //         return;
+        //     }
+        //     if (res === OK) {
+        //         return;
+        //     }
+        //     print('explorer: error sign', res)
+        // }
         creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+        if (creep.room.name === flag.pos.roomName && creep.pos.x === flag.pos.x && creep.pos.y === flag.pos.y){
+
+            // let res = creep.signController(creep.room.controller, 'sosiski 😋🍽');
+            // if (res === ERR_NOT_IN_RANGE){
+            //     creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+            //     return;
+            // }
+            // if (res === OK) {
+            //     return;
+            // }
+            // print('explorer: error sign', res)
+        }
     },
 };
 

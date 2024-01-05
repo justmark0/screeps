@@ -31,6 +31,10 @@ let roleCourier  = {
                 print('courier: no toID in config', creep.pos.roomName)
             }
             let storeTo = Game.getObjectById(courierData[creep.name]['toID']);
+            if (storeTo === null || storeTo === undefined){
+                creep.moveTo(courierData[creep.name]['toPos'], {visualizePathStyle: {stroke: '#e1e1e1'}});
+                return;
+            }
             let res = creep.transfer(storeTo, RESOURCE_ENERGY);
             if (res === OK) {return;}
             if (res === ERR_NOT_IN_RANGE){

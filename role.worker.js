@@ -56,7 +56,7 @@ let roleWorker = {
                 }
 
                 // no structures or only towers left, try to build
-                let targetBuild = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                let targetBuild = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
                 if (targetBuild !== null) {
                     // there is something to build. build it
                     let res = creep.build(targetBuild);
@@ -99,6 +99,19 @@ let roleWorker = {
                 //         return;
                 //     }
                     creep.say('no work🥺️️️️️️');
+                    if (creep.room.name === 'E57S5'){
+
+                        let storage = Game.getObjectById('658f84a71f6566719e95997e');
+                        let res = creep.transfer(storage, RESOURCE_ENERGY)
+                        creep.memory.placedToStorage = true;
+                        if (res === ERR_NOT_IN_RANGE){
+                            creep.moveTo(storage, {visualizePathStyle: {stroke: '#69ec3c'}});
+                            return;}
+                        if (res === OK) {
+                            return;
+                        }
+                        print('worker', creep.name, ': error share energy with storage', res)
+                    }
                     return;
                 }
             }
@@ -117,7 +130,7 @@ let roleWorker = {
             if (creep.memory.placedToStorage === undefined){
                 creep.memory.placedToStorage = false;
             }
-            require('role.chargerMiner').run(creep, 200, !creep.memory.placedToStorage);
+            require('role.chargerMiner').run(creep, 0, !creep.memory.placedToStorage);
         }
     },
 };
@@ -132,22 +145,30 @@ function shareEnergyWithTowersIfNeeded(creep){
     if(damagedStructures.length !== 0){
         isTowersNeedToRepair = true;
     }
-    let towers = Game.rooms[creep.room.name].find(FIND_MY_STRUCTURES, {
-        filter: (structure) => {
-            return structure.structureType === STRUCTURE_TOWER
-        }
-    });
-    if (towers.length === 0){
+    let target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,  {
+            filter: (structure) => {
+                return structure.structureType === STRUCTURE_TOWER
+            }
+        });
+    // let towers = Game.rooms[creep.room.name].find(FIND_MY_STRUCTURES, {
+    //     filter: (structure) => {
+    //         return structure.structureType === STRUCTURE_TOWER
+    //     }
+    // });
+    // if (towers.length === 0){
+    //     return false;
+    // }
+    // towers.sort((a,b) => a.store[RESOURCE_ENERGY] < b.store[RESOURCE_ENERGY] ? -1 : 1);
+    //
+    // if (towers[0].store[RESOURCE_ENERGY] > 500 && !isTowersNeedToRepair){
+    //     return false;
+    // }
+    if (target.store[RESOURCE_ENERGY] > 800 && !isTowersNeedToRepair){
         return false;
     }
-    towers.sort((a,b) => a.store[RESOURCE_ENERGY] < b.store[RESOURCE_ENERGY] ? -1 : 1);
-
-    if (towers[0].store[RESOURCE_ENERGY] > 500 && !isTowersNeedToRepair){
-        return false;
-    }
-    let res = creep.transfer(towers[0], RESOURCE_ENERGY);
+    let res = creep.transfer(target, RESOURCE_ENERGY);
     if (res === ERR_NOT_IN_RANGE){
-        creep.moveTo(towers[0], {visualizePathStyle: {stroke: '#69ec3c'}});
+        creep.moveTo(target, {visualizePathStyle: {stroke: '#69ec3c'}});
         return true;
     }
     if (res === OK) {

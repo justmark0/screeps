@@ -5,11 +5,15 @@ let print = console.log;
 // DEFINE buildFlag in memory on birth
 let roleRaiderBuilder = {
     run: function(creep) {
+        // goto flag build1 -> build2
         if (creep.memory.isRightRoom === undefined) {
             creep.memory.isRightRoom = false;
         }
         if (creep.memory.build === undefined) {
             creep.memory.build = false;
+        }
+        if (creep.memory.passedBuild1Flag === undefined) {
+            creep.memory.passedBuild1Flag = false;
         }
 
         if (creep.memory.isRightRoom === false) {
@@ -21,13 +25,21 @@ let roleRaiderBuilder = {
                 print('minerRaider: no mine flag in map. waiting')
                 return;
             }
-            let flag = Game.flags[creep.memory.buildFlag]
-            if (flag.pos.roomName === creep.pos.roomName) {
+            if (creep.memory.passedBuild1Flag === false) {
+                let build1Flag = Game.flags['build1']
+                if (build1Flag.pos.roomName === creep.pos.roomName) {
+                    creep.memory.passedBuild1Flag = true;
+                    return;
+                }
+                    let flag = Game.flags['build1']
+                creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}})
+                return;
+            }
+            let buildFlag = Game.flags[creep.memory.buildFlag]
+            if (buildFlag.pos.roomName === creep.pos.roomName) {
                 creep.memory.isRightRoom = true;
                 return;
             }
-            creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}})
-            return;
         }
 
         if(creep.store.getFreeCapacity() === 0) {

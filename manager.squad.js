@@ -11,24 +11,39 @@ let DOWN = 'down';
 let healAtOneTime = 300;
 // Allows to easy create creeps for out of Room things. You have time to disable it before it will be spawned.
 function oneAttackerSquad1Local(){
-    if (!Game.creeps['s1a'] || !Game.creeps['s1h1'] || !Game.creeps['s1h2'] || !Game.creeps['s1h3']){
-        // not logging because it will spam
-        return;
-    }
     if (!Game.flags['s']){
         print('oneAttackerSquad1: no flag')
         return;
     }
-    let flag = Game.flags['s'];
-    let fpos = flag.pos;
 
     let attacker = Game.creeps['s1a'];
     let healer1 = Game.creeps['s1h1'];
     let healer2 = Game.creeps['s1h2'];
     let healer3 = Game.creeps['s1h3'];
 
+    let flag = Game.flags['s'];
+    let fpos = flag.pos;
 
-    // attacker.memory.sobralis = false;
+    if (!Game.creeps['s1a'] || !Game.creeps['s1h1'] || !Game.creeps['s1h2'] || !Game.creeps['s1h3']){
+        print('not all squad')
+        // not logging because it will spam
+        return;
+    }else {
+        if (attacker !== undefined){
+            attacker.moveTo(flag)
+        }
+        if (healer1 !== undefined){
+            healer1.moveTo(flag)
+        }
+        if (healer2 !== undefined){
+            healer2.moveTo(flag)
+        }
+        if (healer3 !== undefined){
+            healer3.moveTo(flag)
+        }
+    }
+
+    attacker.memory.sobralis = false;
 
 
     if (attacker.memory.sobralis === undefined){attacker.memory.sobralis = false;}
@@ -74,14 +89,14 @@ function oneAttackerSquad1Local(){
     ]
     // TODO make tests here
     healPriority.sort((a, b) => a.heal < b.heal ? -1 : 1);
-    // print("heal priority", JSON.stringify(healPriority))
+    print("heal priority", JSON.stringify(healPriority))
     let [healTargets, healPriorityRest]= pushToTargetUtilizeHill(healPriority);
     healTargets = pushToTargetFullHeal(healPriorityRest, healTargets)
 
     if (healTargets.length < 3){
         healTargets = pushToTargetsClosestToFlag(healPriorityRest, healTargets, fpos);
     }
-    // print('heal targets', JSON.stringify(healTargets))
+    print('heal targets', JSON.stringify(healTargets))
     // heal
     healer1.heal(getCreep(attacker, healer1, healer2, healer3, healTargets[0]));
     healer2.heal(getCreep(attacker, healer1, healer2, healer3, healTargets[1]));

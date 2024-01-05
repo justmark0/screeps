@@ -20,6 +20,7 @@ let roleChargerMiner = {
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_TOMBSTONES);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_RUINS);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_DROPPED_RESOURCES);
+        // TODO add priority to link
         let nearestStorageOrContainer = creep.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (s) => s.store !== undefined && s.store[RESOURCE_ENERGY] > minAmount && ((s.structureType === STRUCTURE_STORAGE && s.my && ableToTakeFromStorage) || (s.structureType === STRUCTURE_LINK && s.my) || s.structureType === STRUCTURE_CONTAINER)
         });

@@ -11,7 +11,7 @@ function getRepairTargets(roomName, amountOfFreeTowers){
     }
 
     let damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
-        filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 1500000
+        filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 1000000
     });
     if(damagedStructures.length === 0){
         return false;
@@ -47,6 +47,20 @@ function getAttackTargets(roomName, amountOfFreeTowers){
 
 function getHealTargets(tower){
     // TODO write logic to heal creeps
+    let healTargets = ['balast1', 'ubivalka0047', 'ubivalka048']
+    for (let creepidx in healTargets){
+        let creepName = healTargets[creepidx]
+        let balast = Game.creeps[creepName]
+        // print('balast', balast)
+        if (balast !== undefined){
+            if (balast.hitsMax - balast.hits >= 200){
+                return [balast, balast]
+            }
+            if (balast.hitsMax !== balast.hits){
+                return [balast]
+            }
+        }
+    }
     return []
 }
 
@@ -82,30 +96,34 @@ function roomTowerManager(roomName){
         currentTower++;
     }
 
-    for (;true;) {
-        if (currentTower >= towers.length){
+
+    if (roomName === 'E56S7'){
+        for (;true;) {
+            if (currentTower >= towers.length){
+                return
+            }
+            if (towers[currentTower].store[RESOURCE_ENERGY] < 0){
+                currentTower++;
+                continue;
+            }
+            break;
+        }
+        if (towers.length - currentTower <= 0){
             return
         }
-        if (towers[currentTower].store[RESOURCE_ENERGY] < 600){
+
+        let healTargets = getHealTargets(roomName, towers.length - currentTower);
+        // print('heal targets', JSON.stringify(healTargets))
+        for (let healTarget in healTargets) {
+            if (currentTower >= towers.length){
+                return
+            }
+            let target = healTargets[healTarget]
+            towers[currentTower].heal(target);
             currentTower++;
-            continue;
         }
-        break;
-    }
-    if (towers.length - currentTower <= 0){
-        return
     }
 
-    let healTargets = getHealTargets(roomName, towers.length - currentTower);
-    // print('heal targets', JSON.stringify(healTargets))
-    for (let healTarget in healTargets) {
-        if (currentTower >= towers.length){
-            return
-        }
-        let target = healTargets[healTarget]
-        towers[currentTower].heal(target);
-        currentTower++;
-    }
 
     for (;true;) {
         if (currentTower >= towers.length){
