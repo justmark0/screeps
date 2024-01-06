@@ -188,7 +188,7 @@ let roleCourier  = {
 // });
 
 
-            let target = Game.getObjectById('6483f715e2a6916ec143273a')
+            let target = Game.getObjectById('6426d6d8edea30c31e6aa054')
             if (target === null) {
                 print('courierRaider: no target')
                 return;

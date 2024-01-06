@@ -1,5 +1,37 @@
 let print = console.log;
 
+function getAttackTarget(creep) {
+    let mostImportantBuilding = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return structure.my === false && (structure.structureType === STRUCTURE_SPAWN ||
+                structure.structureType === STRUCTURE_TOWER ||
+                structure.structureType === STRUCTURE_POWER_SPAWN
+            )
+        }});
+    if (mostImportantBuilding !== null){
+        return mostImportantBuilding;
+    }
+    let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return structure.my === false && (structure.structureType === STRUCTURE_EXTENSION ||
+                structure.structureType === STRUCTURE_LINK ||
+                structure.structureType === STRUCTURE_OBSERVER ||
+                structure.structureType === STRUCTURE_NUKER ||
+                structure.structureType === STRUCTURE_FACTORY
+            )
+        }
+    });
+    if (target !== null){
+        return target;
+    }
+    let NotMyCreep = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+        filter: (creep) => {return creep.my === false}
+    });
+    if (NotMyCreep !== null){
+        return NotMyCreep;
+    }
+    return null;
+}
 let roleAttacker = {
 
     /** @param {Creep} creep **/
@@ -12,7 +44,7 @@ let roleAttacker = {
             print('no attack flag, waiting')
             return;
         }
-        let target = null;
+        let target = null; // getAttackTarget(creep);
         // let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         // if (creep.name === 'ubivalka0047'){
         //     target = Game.getObjectById('5e2f4b5a5b7a7e7b5d7d3f5e')
@@ -24,21 +56,6 @@ let roleAttacker = {
         //     target = Game.getObjectById('6424e9e102b8e34aea55f5c6')
         // }
         // print('attacker: target', target)
-        // target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-//     filter: (structure) => {
-//         return structure.my === false && (structure.structureType === STRUCTURE_SPAWN ||
-//
-//                 structure.structureType === STRUCTURE_EXTENSION ||
-//             structure.structureType === STRUCTURE_LINK ||
-//
-//             structure.structureType === STRUCTURE_TOWER ||
-//             structure.structureType === STRUCTURE_OBSERVER ||
-//             structure.structureType === STRUCTURE_NUKER ||
-//             structure.structureType === STRUCTURE_POWER_SPAWN ||
-//             structure.structureType === STRUCTURE_FACTORY
-//         )
-//     }
-// });
 
         if (target !== null) {
             let res = creep.attack(target);
@@ -46,7 +63,7 @@ let roleAttacker = {
                 print('attacker: error attacking', res)
             }
             if (res === ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.moveTo(target);
                 return;
             }
             return;

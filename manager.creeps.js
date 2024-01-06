@@ -57,6 +57,9 @@ function creepManager() {
             }
         }
         creepInfo(roomCreeps, roomName)
+        if (Memory.lastSpawn === undefined){
+            Memory.lastSpawn = {};
+        }
         if (Game.time - Memory.lastSpawn[roomName] < cooldown) {
             print('Spawn cooldown', cooldown - (Game.time - Memory.lastSpawn[roomName]))
             continue;
@@ -366,7 +369,7 @@ function createCreepIfEnoughEnergy(roomName, role, roomRoles, creepName, memory)
     if (spawn === undefined){
         print('NO SPAWN IN CONFIG')
     }
-    let body = getBodyByRole(role, spawn.room.energyAvailable, roomRoles)
+    let body = getBodyByRole(role, spawn.room.energyAvailable, roomRoles, roomName)
     if (body.length === 0){
         return -100
     }
@@ -397,12 +400,12 @@ function createCreepIfEnoughEnergy(roomName, role, roomRoles, creepName, memory)
     return -100
 }
 
-function getBodyByRole(role, availableEnergy, roomRoles) {
+function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
     let minEnergy = 300
     let roomIsStable = roomRoles.has('miner') && roomRoles.has('worker')
     if (roomIsStable){
         if (recommendedRolesCost[role] !== undefined){
-            minEnergy = recommendedRolesCost[role]
+            minEnergy = Math.min(recommendedRolesCost[role], Game.rooms[roomName].energyCapacityAvailable)
             print('since room has miner and worker, minEnergy for', role, 'is ', minEnergy)
         }
     }
@@ -411,7 +414,7 @@ function getBodyByRole(role, availableEnergy, roomRoles) {
         return []
     }
     if (role === 'miner'){
-        let maxBody = [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, CARRY]
+        let maxBody = [MOVE, CARRY, WORK, WORK, WORK, CARRY, WORK, WORK, WORK]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'helper'){
