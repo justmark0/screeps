@@ -37,14 +37,16 @@ let roleAttacker = {
     /** @param {Creep} creep **/
     run: function(creep) {
         print(creep.name, creep.room.name)
+
         // if (creep.room.name !== 'E53S5'){
         //     return;
         // }
+
         if (!(creep.memory.attackFlag in Game.flags)){
             print('no attack flag, waiting')
             return;
         }
-        let target = null; // getAttackTarget(creep);
+        let target = getAttackTarget(creep);
         // let target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         // if (creep.name === 'ubivalka0047'){
         //     target = Game.getObjectById('5e2f4b5a5b7a7e7b5d7d3f5e')

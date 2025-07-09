@@ -1,5 +1,6 @@
 const {minerRaiderData} = require("config");
 let print = console.log;
+let playersNotAttack =  require('config').playersNotAttack
 
 // DEFINE mineFlag in memory on birth
 let roleRaiderMiner = {
@@ -16,7 +17,9 @@ let roleRaiderMiner = {
             creep.say('help coming')
         }
 
-        let otherCreeps =  Game.rooms[creep.room.name].find(FIND_HOSTILE_CREEPS);
+        let otherCreeps = Game.rooms[creep.room.name].find(FIND_HOSTILE_CREEPS, {
+            filter: (creep) => !playersNotAttack.includes(creep.owner.username)
+        });
         if (otherCreeps.length > 0 && creep.room.name !== 'E56S7' && creep.room.name !== 'E57S5') {
             require('manager.outCreeps').createSmallInvaderKiller(getRoomToCreateHelpFrom(creep.room.name), creep.room.name);
             let flag = Game.flags[creep.memory.mineFlag]
@@ -84,7 +87,7 @@ function tryToRepairContainer(creep){
     let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
         filter: (s) => s.store !== undefined && s.structureType === STRUCTURE_CONTAINER && (s.hits + 1000) < s.hitsMax
     });
-if (target === null) {
+    if (target === null) {
         return null;
     }
     let res = creep.repair(target);

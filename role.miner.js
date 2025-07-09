@@ -77,13 +77,21 @@ let roleMiner = {
             if (creepLink !== null) {
                 if (creepLink[RESOURCE_ENERGY] > 700) {
                     let storageLink = Game.getObjectById(minerData[creep.room.name]['storageLinkID'])
-                    if (storageLink !== null) {
+                    if (storageLink !== null && storageLink.store[RESOURCE_ENERGY] < 700) {
                         let res = creepLink.transferEnergy(storageLink)
                         if (res === OK) {
                             return;
                         }
                         print('miner: error transfer energy in links', res)
                     }else {print('miner: no storageLinkID in config', creep.room.name, creep.memory.mineTarget)}
+                    let controllerLink = Game.getObjectById(minerData[creep.room.name]['controllerLinkID'])
+                    if (controllerLink !== null) {
+                        let res = creepLink.transferEnergy(controllerLink)
+                        if (res === OK) {
+                            return;
+                        }
+                        print('miner: error transfer energy in links', res)
+                    }
                 } // Do not send energy to storage if link is not full (fee will be high)
             } else {print('miner: no linkID in config', creep.room.name, 'sourceID:', creep.memory.mineTarget);}
 

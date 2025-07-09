@@ -31,7 +31,7 @@ let roleRaiderBuilder = {
                     creep.memory.passedBuild1Flag = true;
                     return;
                 }
-                    let flag = Game.flags['build1']
+                let flag = Game.flags['build1']
                 creep.moveTo(flag.pos, {visualizePathStyle: {stroke: '#ffffff'}})
                 return;
             }

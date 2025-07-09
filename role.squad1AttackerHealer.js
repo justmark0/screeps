@@ -4,12 +4,69 @@ let print = console.log;
 let roleSquadAttacker = {
 
     /** @param {Creep} creep **/
-    run: function(creep) {
+    run: function(creep) { creep.heal(creep);
+        creep.moveTo(Game.flags['healPoint1'].pos); return;
+
+
+        //creep.heal(creep);
+//                 creep.heal(Game.creeps['balast1']);
+// return;
+//                 creep.moveTo(Game.creeps['s1h1'])
+//                 creep.heal(creep);
+//                 creep.heal(Game.creeps['s1h1']);
+// return;
+
+        let roomToRaid = 'E59S2'
+        if (creep.room.name === roomToRaid){
+            let target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+                filter: function(creep) {
+                    return creep.hits < creep.hitsMax && creep.room.name === roomToRaid;
+                }});
+            if (target === null || target === undefined){
+                //creep.say('everyone is healty')
+                creep.moveTo(Game.flags['healPoint1'].pos)
+                return;
+            }
+            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+            creep.heal(target);
+            return;
+        } else {
+            creep.moveTo(Game.flags['healPoint1'].pos)
+            return;
+        }
+
+
+
+
+        if (creep.memory.wasAtFlag === undefined){
+            creep.memory.wasAtFlag = false;
+        }
+        if (creep.memory.wasAtFlag === false){
+            if (creep.room.name === Game.flags['home'].pos.roomName){
+                creep.memory.wasAtFlag = true;
+            }
+            creep.moveTo(Game.flags['home'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+            return;
+        }
+
         // creep.heal(creep)
         // creep.moveTo(Game.flags['heal_me1'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
         // return;
-        let target = Game.creeps['balast1']
-        if (target === null || target === undefined || creep.hitsMax - creep.hits > 300){
+        target = Game.creeps['balast1']
+        if (target === null || target === undefined){
+
+            //target = Game.creeps['balast2']
+            //print("targert2", target)
+            //if (target === null || target === undefined || target.room.name !== 'E59S2'){ //  || target.hits === target.hitsMax){
+            let target = creep.pos.findClosestByPath(FIND_MY_CREEPS, {
+                filter: function(object) {
+                    return object.hits < object.hitsMax;
+                }
+            });
+            //}
+        }
+
+        if (target === null || target === undefined || creep.hitsMax - creep.hits > 100){
             creep.heal(creep);
             creep.moveTo(Game.flags['home'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
             return;
@@ -19,12 +76,9 @@ let roleSquadAttacker = {
             creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#ffffff'}});
             creep.heal(creep);
         }
+        creep.heal(creep)
 
-        // let target = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-        //     filter: function(object) {
-        //         return object.hits < object.hitsMax;
-        //     }
-        // });
+
         // // // Follow atacker and heal, if no atacker follow damaged creeps if no damaged creeps follow flag
         // //
         // // let flag = Game.flags['attack']

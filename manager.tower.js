@@ -4,14 +4,14 @@ let playersNotAttack =  require('config').playersNotAttack
 
 function getRepairTargets(roomName, amountOfFreeTowers){
     let damagedContainers = Game.rooms[roomName].find(FIND_STRUCTURES, {
-        filter: (structure) => structure.hits < 1000000 && structure.structureType === STRUCTURE_CONTAINER && structure.hitsMax !== structure.hits
+        filter: (structure) => structure.hits < 240000 && structure.structureType === STRUCTURE_CONTAINER && structure.hitsMax !== structure.hits
     });
     if(damagedContainers.length !== 0){
         return damagedContainers;
     }
 
     let damagedStructures = Game.rooms[roomName].find(FIND_STRUCTURES, {
-        filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 1000000
+        filter: (structure) => structure.hitsMax - structure.hits > 200 && structure.hits < 10000000
     });
     if(damagedStructures.length === 0){
         return false;
@@ -25,11 +25,26 @@ function getRepairTargets(roomName, amountOfFreeTowers){
 }
 
 function getAttackTargets(roomName, amountOfFreeTowers){
-    let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS);
+    let toAttack = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS, {
+        filter: (creep) => !playersNotAttack.includes(creep.owner.username)
+    });
+
     // print('toAttack', JSON.stringify(toAttack))
     // print('amountOfFreeTowers', amountOfFreeTowers)
     if (toAttack.length === 0){
         return [];
+    }
+    if (toAttack.length > 1){
+        let notInvaders = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS, {
+            filter: (creep) => creep.owner.username !== "Invader"
+        });
+        if (notInvaders.length > 1){
+            Game.notify("ATAKA NA KOMNATU " + roomName + " POMOGAI", 1)
+            // TODO creation of defend creeps
+            require('manager.outCreeps').createOutCreepExport('E56S7', 'attacker', {attackFlag: 'defend',  role: 'attacker'}, 'zashitit_vseh1');
+            require('manager.outCreeps').createOutCreepExport('E56S7', 'attacker', {attackFlag: 'defend',  role: 'attacker'}, 'zashitit_vseh2');
+        }
+
     }
     // TODO smart selection of creeps to attack
     let targets = []
@@ -47,7 +62,7 @@ function getAttackTargets(roomName, amountOfFreeTowers){
 
 function getHealTargets(tower){
     // TODO write logic to heal creeps
-    let healTargets = ['balast1', 'ubivalka0047', 'ubivalka048']
+    let healTargets = ['balast1', 'ubivalka0047', 'ubivalka048', 'zashitit_vseh1', 'zashitit_vseh2']
     for (let creepidx in healTargets){
         let creepName = healTargets[creepidx]
         let balast = Game.creeps[creepName]

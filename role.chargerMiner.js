@@ -1,4 +1,7 @@
 let print = console.log;
+const {
+    minerData
+} = require('config')
 
 function addToArrayNearestIfExists(arr, pos, find_type) {
     let nearestObject = pos.findClosestByPath(find_type, {
@@ -11,7 +14,7 @@ function addToArrayNearestIfExists(arr, pos, find_type) {
 }
 
 let roleChargerMiner = {
-    run: function(creep, minAmount, ableToTakeFromStorage) {
+    run: function(creep, minAmount, ableToTakeFromStorage, getFromStorageLinkFirst) {
         if (ableToTakeFromStorage === undefined){
             ableToTakeFromStorage = true;
         }
@@ -19,6 +22,16 @@ let roleChargerMiner = {
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_TOMBSTONES);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_RUINS);
         chargeSources = addToArrayNearestIfExists(chargeSources, creep.pos, FIND_DROPPED_RESOURCES);
+
+        if (getFromStorageLinkFirst){
+            let storageLink = Game.getObjectById(minerData[creep.room.name]['storageLinkID']);
+            if (storageLink !== null && storageLink.store[RESOURCE_ENERGY] >= creep.carryCapacity){
+                if(creep.withdraw(storageLink, RESOURCE_ENERGY) === OK){return;}
+                creep.moveTo(storageLink.pos);
+                return;
+            }
+        }
+
         let nearestStorageOrContainer = creep.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (s) => s.store !== undefined && s.store[RESOURCE_ENERGY] > minAmount && ((s.structureType === STRUCTURE_STORAGE && s.my && ableToTakeFromStorage) || (s.structureType === STRUCTURE_LINK && s.my) || s.structureType === STRUCTURE_CONTAINER)
         });

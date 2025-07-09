@@ -14,10 +14,10 @@ let cooldown = 1
 let freezeCreationOfOutCreeps = false;
 // let rolesToChange = ['miner', 'raider', 'helper', 'updater', 'claimer', 'attacker', 'healer']
 let recommendedRolesCost = {
-    "miner": 750,
+    "miner": 800,
     "updater": 700,
     "claimer": 800,
-    "attacker": 1800,
+    "attacker": 2000,
     "builder": 850,
     "healer": 1500,
     "worker": 500,
@@ -32,11 +32,12 @@ let recommendedRolesCost = {
     'squad1Attacker_attacker': 2250,
     'squad1Attacker_healer': 2300,
     'cannonFodder': 1250,
-    'raiderCourier':1500,
+    'raiderCourier':1900,
 }
 
 // One of primary ideas is to fully consume and distubute energy with minimal amount of creeps.
 function creepManager() {
+    //runSelectedCreepsOnly();return;
     try {
         testFunc()
     } catch (error) {
@@ -57,9 +58,6 @@ function creepManager() {
             }
         }
         creepInfo(roomCreeps, roomName)
-        if (Memory.lastSpawn === undefined){
-            Memory.lastSpawn = {};
-        }
         if (Game.time - Memory.lastSpawn[roomName] < cooldown) {
             print('Spawn cooldown', cooldown - (Game.time - Memory.lastSpawn[roomName]))
             continue;
@@ -105,7 +103,11 @@ function creepManager() {
                 print('could not create outCreep', outCreepName, res)
                 continue;
             }
-            Memory.outCreeps[roomName][outCreepName]['createdAt'] = Game.time;
+            if (Memory.outCreeps[roomName][outCreepName] === undefined) {
+                Memory.outCreeps[roomName][outCreepName] = null;
+            } else{
+                Memory.outCreeps[roomName][outCreepName]['createdAt'] = Game.time;
+            }
             continue;
         }
         print('nextRole is', nextRole)
@@ -114,11 +116,24 @@ function creepManager() {
     print('-------------creeps:')
     for (let creepName in Game.creeps) {
         let creep = Game.creeps[creepName]
+        // try {
         runCreepProgram(creep.memory.role, creep);
+        // } catch (error) {
+        //     print('❌ runCreepProgram: ' + error.message);
+        // }
     }
     // require('manager.squad').oneAttackerSquad1();
 }
 
+function runSelectedCreepsOnly(){
+    for (let creepName in Game.creeps) {
+        if (['s1h1', 's1h2', 's1h3', 's1h4', 's1h5', 'ubivalka048', 'ubivalka01', 'ubivalka02'].includes(creepName) ){  //|| creepName.includes('worker')) {
+            let creep = Game.creeps[creepName]
+            runCreepProgram(creep.memory.role, creep);
+        }
+    }
+    return;
+}
 // notRoomCreeps: {
 //     "E56S7": {"attacker_1283": {"role": "attacker", "memory": {""}}},
 // },
@@ -126,11 +141,16 @@ function creepManager() {
 
 // function to test some theories or check code.
 function testFunc() {
-    print('CPU bucket: ', Game.cpu.bucket)
-    // Game.cpu.generatePixel()
+    Game.cpu.generatePixel()
+
+    // if (Game.time == 55203000){
+    // Game.rooms['E57S5'].terminal.send(RESOURCE_ENERGY, 200000, 'E53S1')
+    // Game.rooms['E57S5'].terminal.send(RESOURCE_ENERGY, 100000, 'E53S1')
+
+    // }
     //
 
-    // Memory.outCreeps["E56S7"][ne_budet_tut_invader-ov']['createdAt'] = Game.time;
+    // Memory.outCreeps["E57S5"]['ubivalka0047'] = null;
 
     // print(JSON.stringify(Game))
     // let res = getMaxParams( [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH,TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL], 10000)
@@ -142,14 +162,21 @@ function testFunc() {
     //     }
     // }
     // Memory.creeps['pervinah'].alreadyAtSource = false;
-    // Memory.outCreeps["E56S7"]['pervinahCarry'].respawn = true;
-    // delete Memory.outCreeps["E56S7"]['pervinah']
-    //  Memory.outCreeps["E56S7"]['zahvat_pizdi'] = null;
-    //  Memory.outCreeps["E56S7"]['kapalka'] = null;
-    //  Memory.outCreeps["E56S7"]['nasilnik'] = null;
-    // Game.creeps['nasilnik'].memory.goForEnergy = false;
 
-    // Memory.outCreeps["E56S7"]['ne_budet_tut_invader-ov'] = null;
+//     Memory.outCreeps["E56S7"]['zashitit_vseh1'] = null;
+//         Memory.outCreeps["E56S7"]['zashitit_vseh2'] = null;
+// Memory.outCreeps["E57S5"]['zashitit_vseh1'] = null;
+//         Memory.outCreeps["E57S5"]['zashitit_vseh2'] = null;
+
+    // delete Memory.outCreeps["E56S7"]['pervinah']
+    //  Memory.outCreeps["E56S7"]['raiderCourier1'] = null;
+    //  Memory.outCreeps["E56S7"]['raiderCourier2'] = null;Memory.outCreeps["E56S7"]['raiderCourier3'] = null;Memory.outCreeps["E56S7"]['raiderCourier4'] = null;
+    //Memory.outCreeps["E56S7"]['sh1'] = null;
+    //  Memory.outCreeps["E56S7"]['nasilnik'] = null;
+
+    //Game.creeps['raiderCourier1'].memory.isRightRoom = true;
+
+    // Memory.outCreeps["E56S7"]['s1h1-ov'] = null;
 
     // Game.creeps['ne_budet_tut_invader-ov'].memory.attackRoom = 'E55S7';
 
@@ -167,10 +194,13 @@ function testFunc() {
 }
 
 function buildDefendersIfNeeded(roomName){
+    if (Game.rooms[roomName] === undefined) {
+        return;
+    }
     let invaderCore =  Game.rooms[roomName].find(FIND_HOSTILE_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_INVADER_CORE
     });
-    if (invaderCore.length === 0){
+    if (invaderCore !== undefined && invaderCore.length === 0){
         return;
     }
     require('manager.outCreeps').createReserverKiller(roomName);
@@ -205,7 +235,7 @@ function getOutCreepsForRoom(roomName){
     if (Memory.outCreeps[roomName] === undefined){
         Memory.outCreeps[roomName] = {}
     }
-    let priority = ['umri_100kshnik', 'ne_budet_tut_invader-ov', 's1a', 's1h1', 's1h2', 's1h3', 'balast1', 'ubivalka0047', 'ubivalka048','ubivalka01', 'ubivalka02', 'explorer', 'kapalka', 'kapalka2', 'kapalka3']
+    let priority = ['umri_100kshnik', 'ne_budet_tut_invader-ov', 'balast1', 'ubivalka0047', 's1h1', 's1h2', 's1h3', 'ubivalka02', 'explorer', 'kapalka', 'kapalka2', 'kapalka3', 'balast1'] // 's1a', 's1h1', 's1h2', 's1h3',
     for (let outCreepName of priority){
         try{
             if (Memory.outCreeps[roomName][outCreepName] !== undefined && Memory.outCreeps[roomName][outCreepName]['createdAt'] === undefined && Game.creeps[outCreepName] === undefined){
@@ -267,9 +297,6 @@ function setClaimerRoomTarget(creepName, roomName){
 }
 
 function getRolesToCreate(roomCreeps, roles) {
-    if (roomCreeps.length === 0 || roomCreeps.length === undefined) {
-        return [[], roles]
-    }
     for(let creepName in roomCreeps) {
         let creep = roomCreeps[creepName]
         roles[creep.memory.role] -= 1
@@ -346,14 +373,14 @@ function roleToCreateNext(rolesToCreate, roomRoles) {
         rolesPosition = ['miner', 'worker']
     }
     rolesPosition = rolesPosition.concat([
-        'updater',
-        'towerWorker',
-        'helper',
-        'claimer',
-        'attacker',
-        'healer',
-        'builder',
-        'resourceMiner',
+            'updater',
+            'towerWorker',
+            'helper',
+            'claimer',
+            'attacker',
+            'healer',
+            'builder',
+            'resourceMiner',
         ]
     )
     for (let roleInt in rolesPosition) {
@@ -369,7 +396,7 @@ function createCreepIfEnoughEnergy(roomName, role, roomRoles, creepName, memory)
     if (spawn === undefined){
         print('NO SPAWN IN CONFIG')
     }
-    let body = getBodyByRole(role, spawn.room.energyAvailable, roomRoles, roomName)
+    let body = getBodyByRole(role, spawn.room.energyAvailable, roomRoles)
     if (body.length === 0){
         return -100
     }
@@ -389,6 +416,10 @@ function createCreepIfEnoughEnergy(roomName, role, roomRoles, creepName, memory)
     // Primary spawn busy creating creep, using secondary.
     if (spawns[roomName]['norm'][1] !== ""){
         spawn = Game.spawns[spawns[roomName]['norm'][1]]  // TODO filter right spawn
+        if (spawn === undefined){
+            Game.notify("Spawn " + spawns[roomName]['norm'][1] + " is undefined in room" + roomName, 360)
+            return -100
+        }
         result = spawn.spawnCreep(body, creepName, {memory: memory})
         if (result === OK){
             Memory.lastSpawn[roomName] = Game.time
@@ -400,12 +431,12 @@ function createCreepIfEnoughEnergy(roomName, role, roomRoles, creepName, memory)
     return -100
 }
 
-function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
+function getBodyByRole(role, availableEnergy, roomRoles) {
     let minEnergy = 300
     let roomIsStable = roomRoles.has('miner') && roomRoles.has('worker')
     if (roomIsStable){
         if (recommendedRolesCost[role] !== undefined){
-            minEnergy = Math.min(recommendedRolesCost[role], Game.rooms[roomName].energyCapacityAvailable)
+            minEnergy = recommendedRolesCost[role]
             print('since room has miner and worker, minEnergy for', role, 'is ', minEnergy)
         }
     }
@@ -414,7 +445,7 @@ function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
         return []
     }
     if (role === 'miner'){
-        let maxBody = [MOVE, CARRY, WORK, WORK, WORK, CARRY, WORK, WORK, WORK]
+        let maxBody = [MOVE, CARRY, WORK, WORK, MOVE, WORK, WORK, WORK, WORK, CARRY]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'helper'){
@@ -422,7 +453,7 @@ function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'updater'){
-        let maxBody = [MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, WORK]
+        let maxBody = [MOVE, CARRY, WORK, MOVE, CARRY, WORK, WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, WORK, MOVE, WORK, MOVE, CARRY, MOVE, CARRY]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'builder'){
@@ -434,7 +465,7 @@ function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'worker'){
-        return getMaxParams([MOVE, CARRY, MOVE, CARRY, WORK, MOVE, CARRY, MOVE, CARRY], availableEnergy)
+        return getMaxParams([MOVE, CARRY, CARRY, MOVE, CARRY, WORK, MOVE, CARRY, CARRY, MOVE, CARRY, CARRY], availableEnergy)
     }
     if (role === 'towerWorker'){
         let maxBody = [MOVE, CARRY, WORK, MOVE, CARRY]
@@ -447,11 +478,11 @@ function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
 
     if (role === 'towerWorker'){
         // let maxBody =  [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
-        let maxBody = [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]
+        let maxBody = [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'attacker'){
-        let maxBody =  [MOVE, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE]
+        let maxBody =  [ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, MOVE]
         return getMaxParams(maxBody, availableEnergy)
     }
     if (role === 'reserverKiller'){
@@ -510,7 +541,7 @@ function getBodyByRole(role, availableEnergy, roomRoles, roomName) {
     }
     if (role === 'raiderCourier'){
         // let maxBody =  [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
-        let maxBody = [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
+        let maxBody = [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY]
         return getMaxParams(maxBody, availableEnergy)
     }
 

@@ -1,5 +1,5 @@
 let print = console.log;
-
+let playersNotAttack =  require('config').playersNotAttack
 
 // Describe attackRoom in memory on birth
 let roleSmallInvaderKiller = {
@@ -11,9 +11,12 @@ let roleSmallInvaderKiller = {
             return;
         }
 
-        let target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS);
+        let target = creep.pos.findClosestByPath(FIND_HOSTILE_CREEPS, {
+            filter: (creep) => !playersNotAttack.includes(creep.owner.username)
+        });
+
         if (target !== null) {
-            let res = creep.attack(target);
+            let res = null; //creep.attack(target);
             if (res !== ERR_NOT_IN_RANGE && res !== OK) {
                 print('smallInvaderKiller: error attacking', res)
             }

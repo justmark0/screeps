@@ -33,17 +33,33 @@ let roleRaiderCarrier = {
                 return;
             }
 
-            let target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            let target = null;
+            // if (creep.room.name === 'E56S7'){
+            // target = Game.getObjectById('658f2e0ed554ec6ce72e7186')
+            // } else {
+            target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.store !== undefined && (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
             });
-            if (target === null) {
+            // }
+
+            if (target !== null) {
+                let res = creep.transfer(target, RESOURCE_ENERGY);
+                if (res === OK) {return;}
+                creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+                return;
+            }
+
+            target = creep.room.terminal
+            if (target === null || target == undefined) {
                 creep.say('blyat\'');
                 creep.drop(RESOURCE_ENERGY);
+
                 return;
             }
             let res = creep.transfer(target, RESOURCE_ENERGY);
             if (res === OK) {return;}
             creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+
         }
     },
 };

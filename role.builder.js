@@ -33,7 +33,7 @@ let roleBuilder = {
             print('builder: error building', res)
         }
         else {
-            require('role.chargerMiner').run(creep, 100, true);
+            require('role.chargerMiner').run(creep, 100, true, true);
         }
     },
 };
